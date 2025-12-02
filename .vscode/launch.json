@@ -6,8 +6,8 @@
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/admin/Peter/.vscode/lab1",
-      "program": "/Users/admin/Peter/.vscode/lab1/build/Debug/outDebug"
+      "cwd": "/Users/admin/Peter/lab5",
+      "program": "/Users/admin/Peter/lab5/build/Debug/outDebug"
     }
   ]
 }
