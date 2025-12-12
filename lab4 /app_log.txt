@@ -1,0 +1,10 @@
+=== Application Started ===
+[INFO] 2025-12-12 18:46:57 - Application started
+[INFO] 2025-12-12 18:46:57 - === Demonstrating Basic Operations ===
+[ERROR] 2025-12-12 18:46:57 - Division by zero attempted
+[INFO] 2025-12-12 18:46:57 - === Demonstrating Power Function ===
+[INFO] 2025-12-12 18:46:57 - === Demonstrating Factorial ===
+[ERROR] 2025-12-12 18:46:57 - Factorial of negative number attempted: -5
+[INFO] 2025-12-12 18:46:57 - === Demonstrating Average Calculation ===
+[ERROR] 2025-12-12 18:46:57 - Attempt to calculate average of empty vector
+[INFO] 2025-12-12 18:46:57 - Application finished successfully
