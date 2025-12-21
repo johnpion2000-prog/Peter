@@ -9,31 +9,31 @@ Bank::Bank(const std::string& name, const std::string& bankCode)
     : name(name), bankCode(bankCode) {
 }
 
-// Méthodes privées
+// Mï¿½thodes privï¿½es
 bool Bank::validateTransaction(const std::string& fromAccount,
     const std::string& toAccount,
     double amount) const {
     // Validation de base
     if (amount <= 0) {
-        std::cout << "Le montant doit être positif!" << std::endl;
+        std::cout << "Le montant doit ï¿½tre positif!" << std::endl;
         return false;
     }
 
-    // Vérifier si le compte source existe
+    // Vï¿½rifier si le compte source existe
     auto fromAcc = findAccount(fromAccount);
     if (!fromAcc) {
-        std::cout << "Compte source non trouvé!" << std::endl;
+        std::cout << "Compte source non trouvï¿½!" << std::endl;
         return false;
     }
 
-    // Vérifier si le compte destinataire existe (sauf pour les retraits)
+    // Vï¿½rifier si le compte destinataire existe (sauf pour les retraits)
     auto toAcc = findAccount(toAccount);
     if (toAccount != "" && !toAcc) {
-        std::cout << "Compte destinataire non trouvé!" << std::endl;
+        std::cout << "Compte destinataire non trouvï¿½!" << std::endl;
         return false;
     }
 
-    // Vérifier le statut des comptes
+    // Vï¿½rifier le statut des comptes
     if (!fromAcc->isActive()) {
         std::cout << "Le compte source n'est pas actif!" << std::endl;
         return false;
@@ -44,7 +44,7 @@ bool Bank::validateTransaction(const std::string& fromAccount,
         return false;
     }
 
-    // Vérifier les fonds suffisants pour les retraits/transfers
+    // Vï¿½rifier les fonds suffisants pour les retraits/transfers
     if (!fromAcc->canWithdraw(amount)) {
         std::cout << "Fonds insuffisants sur le compte source!" << std::endl;
         return false;
@@ -80,20 +80,20 @@ int Bank::addClient(const std::string& firstName, const std::string& lastName,
     recordTransaction("", "", 0, TransactionType::OPEN_ACCOUNT);
 
     std::cout << "Client " << client->getFullName()
-        << " ajouté avec succès! ID: " << client->getId() << std::endl;
+        << " ajoutï¿½ avec succï¿½s! ID: " << client->getId() << std::endl;
 
     return client->getId();
 }
 
 bool Bank::removeClient(int clientId) {
-    // Vérifier si le client existe
+    // Vï¿½rifier si le client existe
     auto clientIt = clientMap.find(clientId);
     if (clientIt == clientMap.end()) {
-        std::cout << "Client non trouvé!" << std::endl;
+        std::cout << "Client non trouvï¿½!" << std::endl;
         return false;
     }
 
-    // Vérifier les comptes du client
+    // Vï¿½rifier les comptes du client
     auto clientAccounts = getClientAccounts(clientId);
     for (const auto& account : clientAccounts) {
         if (account->isActive() && account->getBalance() > 0) {
@@ -117,7 +117,7 @@ bool Bank::removeClient(int clientId) {
         clients.erase(it, clients.end());
         clientMap.erase(clientId);
 
-        std::cout << "Client supprimé avec succès!" << std::endl;
+        std::cout << "Client supprimï¿½ avec succï¿½s!" << std::endl;
         return true;
     }
 
@@ -158,14 +158,14 @@ std::vector<std::shared_ptr<Client>> Bank::getClientsByType(ClientType type) con
 
 // Gestion des comptes
 std::string Bank::openAccount(int clientId, AccountType type, double initialBalance) {
-    // Vérifier si le client existe
+    // Vï¿½rifier si le client existe
     auto client = findClient(clientId);
     if (!client) {
-        std::cout << "Client non trouvé!" << std::endl;
+        std::cout << "Client non trouvï¿½!" << std::endl;
         return "";
     }
 
-    // Créer le compte
+    // Crï¿½er le compte
     auto account = std::make_shared<BankAccount>(clientId, type, initialBalance);
     accounts.push_back(account);
     accountMap[account->getAccountNumber()] = account;
@@ -173,7 +173,7 @@ std::string Bank::openAccount(int clientId, AccountType type, double initialBala
     // Enregistrer la transaction
     recordTransaction("", account->getAccountNumber(), initialBalance, TransactionType::OPEN_ACCOUNT);
 
-    std::cout << "Compte ouvert avec succès! Numéro: " << account->getAccountNumber()
+    std::cout << "Compte ouvert avec succï¿½s! Numï¿½ro: " << account->getAccountNumber()
         << " Solde initial: " << initialBalance << std::endl;
 
     return account->getAccountNumber();
@@ -182,11 +182,11 @@ std::string Bank::openAccount(int clientId, AccountType type, double initialBala
 bool Bank::closeAccount(const std::string& accountNumber) {
     auto account = findAccount(accountNumber);
     if (!account) {
-        std::cout << "Compte non trouvé!" << std::endl;
+        std::cout << "Compte non trouvï¿½!" << std::endl;
         return false;
     }
 
-    // Vérifier le solde
+    // Vï¿½rifier le solde
     if (account->getBalance() != 0) {
         std::cout << "Impossible de fermer le compte: solde non nul!" << std::endl;
         return false;
@@ -197,7 +197,7 @@ bool Bank::closeAccount(const std::string& accountNumber) {
         // Enregistrer la transaction
         recordTransaction(accountNumber, "", 0, TransactionType::CLOSE_ACCOUNT);
 
-        std::cout << "Compte fermé avec succès!" << std::endl;
+        std::cout << "Compte fermï¿½ avec succï¿½s!" << std::endl;
         return true;
     }
 
@@ -236,7 +236,7 @@ std::vector<std::shared_ptr<BankAccount>> Bank::getAccountsByType(AccountType ty
     return result;
 }
 
-// Opérations bancaires
+// Opï¿½rations bancaires
 bool Bank::deposit(const std::string& accountNumber, double amount) {
     if (!validateTransaction("", accountNumber, amount)) {
         return false;
@@ -301,8 +301,8 @@ void Bank::displayBankInfo() const {
     std::cout << "Nombre total de comptes: " << getTotalAccounts() << std::endl;
     std::cout << "Comptes actifs: " << getActiveAccountsCount() << std::endl;
     std::cout << "Solde total de la banque: " << std::fixed << std::setprecision(2)
-        << getTotalBankBalance() << " €" << std::endl;
-    std::cout << "Transactions effectuées: " << transactions.size() << std::endl;
+        << getTotalBankBalance() << " ï¿½" << std::endl;
+    std::cout << "Transactions effectuï¿½es: " << transactions.size() << std::endl;
     std::cout << "========================================\n";
 }
 
@@ -312,7 +312,7 @@ void Bank::displayAllClients() const {
     std::cout << "========================================\n";
 
     if (clients.empty()) {
-        std::cout << "Aucun client enregistré.\n";
+        std::cout << "Aucun client enregistrï¿½.\n";
     }
     else {
         for (const auto& client : clients) {
@@ -354,7 +354,7 @@ void Bank::displayAccountInfo(const std::string& accountNumber) const {
         }
     }
     else {
-        std::cout << "Compte non trouvé!" << std::endl;
+        std::cout << "Compte non trouvï¿½!" << std::endl;
     }
 }
 
@@ -376,7 +376,7 @@ void Bank::displayClientInfo(int clientId) const {
         }
     }
     else {
-        std::cout << "Client non trouvé!" << std::endl;
+        std::cout << "Client non trouvï¿½!" << std::endl;
     }
 }
 
@@ -386,7 +386,7 @@ void Bank::displayTransactionHistory() const {
     std::cout << "========================================\n";
 
     if (transactions.empty()) {
-        std::cout << "Aucune transaction enregistrée.\n";
+        std::cout << "Aucune transaction enregistrï¿½e.\n";
     }
     else {
         for (const auto& transaction : transactions) {
@@ -412,7 +412,7 @@ void Bank::displayAccountTransactions(const std::string& accountNumber) const {
     }
 
     if (!found) {
-        std::cout << "Aucune transaction trouvée pour ce compte.\n";
+        std::cout << "Aucune transaction trouvï¿½e pour ce compte.\n";
     }
 
     std::cout << "========================================\n";
@@ -464,7 +464,7 @@ std::string Bank::getBankCode() const {
     return bankCode;
 }
 
-// Sauvegarde et chargement (implémentation de base)
+// Sauvegarde et chargement (implï¿½mentation de base)
 bool Bank::saveToFile(const std::string& filename) const {
     std::ofstream file(filename);
     if (!file.is_open()) {
@@ -472,7 +472,7 @@ bool Bank::saveToFile(const std::string& filename) const {
         return false;
     }
 
-    // Sauvegarde simplifiée pour l'exemple
+    // Sauvegarde simplifiï¿½e pour l'exemple
     file << "BANK:" << name << ":" << bankCode << "\n";
 
     for (const auto& client : clients) {
@@ -486,7 +486,7 @@ bool Bank::saveToFile(const std::string& filename) const {
     }
 
     file.close();
-    std::cout << "Données sauvegardées dans " << filename << std::endl;
+    std::cout << "Donnï¿½es sauvegardï¿½es dans " << filename << std::endl;
     return true;
 }
 
@@ -523,12 +523,12 @@ bool Bank::loadFromFile(const std::string& filename) {
             std::getline(ss, clientIdStr, ':');
             std::getline(ss, balanceStr, ':');
 
-            // Note: cette implémentation est simplifiée
-            // Dans une vraie application, il faudrait gérer la recréation des objets
+            // Note: cette implï¿½mentation est simplifiï¿½e
+            // Dans une vraie application, il faudrait gï¿½rer la recrï¿½ation des objets
         }
     }
 
     file.close();
-    std::cout << "Données chargées depuis " << filename << std::endl;
+    std::cout << "Donnï¿½es chargï¿½es depuis " << filename << std::endl;
     return true;
 }
