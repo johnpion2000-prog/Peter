@@ -1,13 +1,3 @@
-// Created by Kirill on 04.12.2025.
-//
-
-/*
-**Задача:**
-1. Создайте класс `DatabaseManager` с методами для подключения к базе данных
-2. Реализуйте создание таблиц `students` и `grades`
-3. Добавьте базовую оптимизацию базы данных
- */
-
 #include "lib/sqlite3.h"
 #include <iostream>
 #include <string>

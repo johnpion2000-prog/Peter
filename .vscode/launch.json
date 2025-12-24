@@ -6,8 +6,8 @@
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/admin/Peter/lab6",
-      "program": "/Users/admin/Peter/lab6/build/Debug/outDebug"
+      "cwd": "/Users/admin/Peter/lab4 /untitled folder",
+      "program": "/Users/admin/Peter/lab4 /untitled folder/build/Debug/outDebug"
     }
   ]
 }

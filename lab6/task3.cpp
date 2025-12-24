@@ -1,16 +1,3 @@
-//
-// Created by Kirill on 06.12.2025.
-//
-
-/*
-**Задача:**
-1. Реализуйте метод `addStudentWithGrades()` который добавляет студента и его оценки в одной транзакции
-2. Создайте методы для статистики:
-   - `getStudentsByGroup(group_name)`
-   - `getAverageGradeBySubject(subject)`
-   - `getTopStudents(limit)`
- */
-
 #include "lib/sqlite3.h"
 #include <iostream>
 #include <string>

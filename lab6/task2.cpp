@@ -1,17 +1,3 @@
-//
-// Created by Kirill on 05.12.2025.
-//
-
-/*
-**Задача:**
-Создайте класс `StudentRepository` со следующими методами:
-- `addStudent(name, email, group)`
-- `getStudent(id)`
-- `updateStudent(id, newName, newEmail, newGroup)`
-- `deleteStudent(id)`
-- `getAllStudents()`
-*/
-
 #include "lib/sqlite3.h"
 #include <iostream>
 #include <string>
