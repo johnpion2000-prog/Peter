@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Remit - Foreign Payout Services</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+
+        body {
+            background: #ffffff;
+            color: #1a1a1a;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0b1b3a;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .sign-in-btn {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+        }
+
+        .get-started-btn {
+            background: #0b1b3a;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .get-started-btn:hover {
+            background: #1a2b4a;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            padding: 2rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-items: start;
+        }
+
+        .hero-left {
+            padding-top: 2rem;
+        }
+
+        .since-badge {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero-left h1 {
+            font-size: 3.5rem;
+            line-height: 1.2;
+            color: #0b1b3a;
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: #4a5568;
+            margin-bottom: 1rem;
+        }
+
+        .hero-description {
+            color: #718096;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        /* Calculator Card */
+        .calculator-card {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border: 1px solid #edf2f7;
+        }
+
+        .timestamp {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .swap-container {
+            background: #f7fafc;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .input-label {
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .currency-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .currency-select {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .currency-select:hover {
+            background: #f7fafc;
+        }
+
+        .amount-input {
+            border: none;
+            font-size: 1.25rem;
+            font-weight: 600;
+            width: 120px;
+            text-align: right;
+            outline: none;
+        }
+
+        .swap-icon {
+            text-align: center;
+            margin: 0.5rem 0;
+            color: #4a5568;
+            font-size: 1.2rem;
+        }
+
+        .savings-badge {
+            color: #059669;
+            background: #d1fae5;
+            display: inline-block;
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .fee-details {
+            padding: 1rem 0;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .fee-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+
+        .rate-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .create-account-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #0b1b3a;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 1rem 0;
+            transition: background 0.3s;
+        }
+
+        .create-account-btn:hover {
+            background: #1a2b4a;
+        }
+
+        .signin-link {
+            text-align: center;
+            color: #718096;
+        }
+
+        .signin-link a {
+            color: #0b1b3a;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .view-details {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .view-details a {
+            color: #718096;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: #0b1b3a;
+            color: white;
+            padding: 4rem 5%;
+            margin-top: 4rem;
+        }
+
+        .stats-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+
+        .stat-item h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item p {
+            color: #a0b3d9;
+        }
+
+        .features-list {
+            max-width: 1400px;
+            margin: 3rem auto 0;
+            display: flex;
+            justify-content: space-between;
+            color: #e2e8f0;
+        }
+
+        .features-list span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 968px) {
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .features-list {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .hero-left h1 {
+                font-size: 2.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Aura Remit</div>
+        <div class="nav-links">
+            <a href="#">Dashboard</a>
+            <a href="#">Send Money</a>
+            <button class="sign-in-btn" onclick="window.location.href='signin.html'">Sign In</button>
+            <button class="get-started-btn" onclick="window.location.href='signup.html'">Get started</button>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-left">
+                <div class="since-badge">Foreign payout services since 2024</div>
+                <h1>Global Payouts<br>Made Easy</h1>
+                <div class="hero-subtitle">Fast. Secure. Affordable.</div>
+                <div class="hero-description">
+                    Real-time rates, low transparent fees,<br>fast local payouts.
+                </div>
+            </div>
+
+            <div class="calculator-card">
+                <div class="timestamp">Last updated: <span id="current-time"></span></div>
+                
+                <div class="swap-container">
+                    <div class="input-row">
+                        <span class="input-label">You send</span>
+                        <div class="currency-input-group">
+                            <div class="currency-select">
+                                <span>RUB</span>
+                                <span>▼</span>
+                            </div>
+                            <input type="number" class="amount-input" id="send-amount" value="10000" step="100">
+                        </div>
+                    </div>
+                    
+                    <div class="swap-icon">↓↑</div>
+                    
+                    <div class="input-row">
+                        <span class="input-label">Recipient gets</span>
+                        <div class="currency-input-group">
+                            <div class="currency-select">
+                                <span>RWF</span>
+                                <span>▼</span>
+                            </div>
+                            <span class="amount-input" id="receive-amount">182,426</span>
+                        </div>
+                    </div>
+                    
+                    <div class="savings-badge" id="savings-badge">🔗 YOU SAVE Rwf 3577</div>
+                </div>
+
+                <div class="fee-details">
+                    <div class="fee-row">
+                        <span>Total fee</span>
+                        <span id="total-fee">₮ 100.00</span>
+                    </div>
+                </div>
+
+                <div class="rate-row">
+                    <span>Our rate</span>
+                    <span id="exchange-rate">1 RUB = 18.4270 RWF</span>
+                </div>
+
+                <button class="create-account-btn" onclick="window.location.href='signup.html'">
+                    Create Account to Send Money
+                </button>
+
+                <div class="signin-link">
+                    Already have an account? <a href="signin.html">Sign in</a>
+                </div>
+
+                <div class="view-details">
+                    <a href="#">View details ▼</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h2>99.9%</h2>
+                    <p>Uptime Guaranteed</p>
+                </div>
+                <div class="stat-item">
+                    <h2>256-bit</h2>
+                    <p>Encryption</p>
+                </div>
+                <div class="stat-item">
+                    <h2>&lt;5min</h2>
+                    <p>Avg Transfer Time</p>
+                </div>
+                <div class="stat-item">
+                    <h2>12+</h2>
+                    <p>Countries Covered</p>
+                </div>
+            </div>
+
+            <div class="features-list">
+                <span>✓ Real-time exchange rate updates</span>
+                <span>✓ Bank-grade security infrastructure</span>
+                <span>✓ 24/7 automated monitoring system</span>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Update timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false 
+            });
+            document.getElementById('current-time').textContent = timeString;
+        }
+        updateTimestamp();
+        setInterval(updateTimestamp, 1000);
+
+        // Currency calculator logic
+        const sendAmount = document.getElementById('send-amount');
+        const receiveAmount = document.getElementById('receive-amount');
+        const savingsBadge = document.getElementById('savings-badge');
+        const totalFee = document.getElementById('total-fee');
+        const exchangeRate = document.getElementById('exchange-rate');
+
+        // Exchange rate (static for demo)
+        const rate = 18.4270;
+        const fee = 100;
+
+        function calculateReceive() {
+            const amount = parseFloat(sendAmount.value) || 0;
+            const receive = amount * rate;
+            const savings = (amount * 0.02).toFixed(0); // 2% savings demo
+            
+            receiveAmount.textContent = Math.round(receive).toLocaleString();
+            savingsBadge.textContent = `🔗 YOU SAVE Rwf ${parseInt(savings).toLocaleString()}`;
+            totalFee.textContent = `₮ ${fee}.00`;
+            exchangeRate.textContent = `1 RUB = ${rate.toFixed(4)} RWF`;
+        }
+
+        sendAmount.addEventListener('input', calculateReceive);
+        calculateReceive(); // Initial calculation
+    </script>
+</body>
+</html>

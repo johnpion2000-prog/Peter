@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Aura Remit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #f7fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 2rem;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0b1b3a;
+            margin-bottom: 2rem;
+        }
+
+        .signin-card {
+            background: white;
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            color: #0b1b3a;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #0b1b3a;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 1.5rem;
+        }
+
+        .forgot-password a {
+            color: #718096;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .signin-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #0b1b3a;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: background 0.3s;
+        }
+
+        .signin-btn:hover {
+            background: #1a2b4a;
+        }
+
+        .signup-link {
+            text-align: center;
+            color: #718096;
+        }
+
+        .signup-link a {
+            color: #0b1b3a;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .error-message {
+            color: #e53e3e;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: none;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">Aura Remit</div>
+        
+        <div class="signin-card">
+            <h2>Welcome Back</h2>
+
+            <div class="error-message" id="loginError">Invalid email or password</div>
+
+            <form onsubmit="return handleSignIn(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="john@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required>
+                </div>
+
+                <div class="forgot-password">
+                    <a href="#">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="signin-btn">
+                    Sign In
+                </button>
+
+                <div class="signup-link">
+                    Don't have an account? <a href="signup.html">Create account</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function handleSignIn(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('loginError');
+
+            // Simple validation (in real app, this would check against backend)
+            if (email && password.length >= 8) {
+                // Check if user exists in localStorage
+                const userData = JSON.parse(localStorage.getItem('currentUser'));
+                
+                if (userData && userData.email === email) {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    // Demo mode - create a demo user and login
+                    const demoUser = {
+                        fullName: 'John Doe',
+                        email: email,
+                        displayName: 'John'
+                    };
+                    localStorage.setItem('currentUser', JSON.stringify(demoUser));
+                    window.location.href = 'dashboard.html';
+                }
+            } else {
+                errorEl.style.display = 'block';
+            }
+
+            return false;
+        }
+    </script>
+</body>
+</html>

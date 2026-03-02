@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Money - Aura Remit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #f7fafc;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0b1b3a;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .step-header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .step-title {
+            color: #0b1b3a;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-subtitle {
+            color: #718096;
+        }
+
+        .delivery-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .delivery-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .delivery-card:hover {
+            border-color: #0b1b3a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        .delivery-card.selected {
+            border-color: #0b1b3a;
+            background: #f0f4ff;
+        }
+
+        .recommended-badge {
+            background: #d1fae5;
+            color: #059669;
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .delivery-card h3 {
+            margin-bottom: 0.5rem;
+            color: #0b1b3a;
+        }
+
+        .delivery-card p {
+            color: #718096;
+            font-size: 0.95rem;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #0b1b3a;
+        }
+
+        .helper-text {
+            font-size: 0.85rem;
+            color: #718096;
+            margin-top: 0.5rem;
+        }
+
+        .payment-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .payment-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-card.selected {
+            border-color: #0b1b3a;
+            background: #f0f4ff;
+        }
+
+        .payment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .payment-amount {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0b1b3a;
+        }
+
+        .discount-badge {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .payment-method {
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+        }
+
+        .back-btn {
+            padding: 1rem 2rem;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex: 1;
+        }
+
+        .back-btn:hover {
+            background: #f7fafc;
+        }
+
+        .continue-btn {
+            padding: 1rem 2rem;
+            background: #0b1b3a;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            flex: 2;
+        }
+
+        .continue-btn:hover {
+            background: #1a2b4a;
+        }
+
+        .payment-details {
+            background: #f7fafc;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #718096;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #0b1b3a;
+        }
+
+        .card-preview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            color: white;
+            margin: 1.5rem 0;
+        }
+
+        .reminder-link {
+            color: #0b1b3a;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .how-to-pay {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .how-to-pay.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Aura Remit</div>
+    </nav>
+
+    <main class="main-content">
+        <!-- Step 1: Delivery Method -->
+        <div id="step1" class="step-content">
+            <div class="step-header">
+                <h2 class="step-title">Choose Delivery Method</h2>
+                <p class="step-subtitle">How will the recipient receive money?</p>
+            </div>
+
+            <div class="delivery-options">
+                <div class="delivery-card selected" onclick="selectDelivery('mobile')" id="mobile-card">
+                    <span class="recommended-badge">Recommended</span>
+                    <h3>Mobile Money</h3>
+                    <p>Fastest for popular corridors</p>
+                </div>
+                <div class="delivery-card" onclick="selectDelivery('bank')" id="bank-card">
+                    <h3>Bank Account</h3>
+                    <p>Use a bank account number</p>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="back-btn" onclick="goBack()">Back</button>
+                <button class="continue-btn" onclick="nextStep(2)">Continue to Recipient</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Recipient Details -->
+        <div id="step2" class="step-content" style="display: none;">
+            <div class="step-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2 class="step-title">Recipient Details</h2>
+                    <span style="color: #718096;">Delivery Method: <span id="selectedMethod">Mobile Money</span> <a href="#" onclick="changeMethod()" style="color: #0b1b3a; margin-left: 0.5rem;">Change</a></span>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-group">
+                    <label>Recipient Full Name</label>
+                    <input type="text" id="recipientName" placeholder="e.g. Kalisa Richard">
+                </div>
+
+                <div class="form-group">
+                    <label>Mobile Money Provider</label>
+                    <select id="provider">
+                        <option value="">Select provider</option>
+                        <option value="mtn">MTN Momo</option>
+                        <option value="airtel">Airtel Money</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Recipient Phone Number</label>
+                    <input type="tel" id="phoneNumber" placeholder="+250 7XXXXXXXXX">
+                    <div class="helper-text">We automatically add +250. Enter the remaining digits only (e.g. 7XXXXXXXXX).</div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="back-btn" onclick="prevStep(1)">Back</button>
+                <button class="continue-btn" onclick="nextStep(3)">Continue to Payment</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Payment Method -->
+        <div id="step3" class="step-content" style="display: none;">
+            <div class="step-header">
+                <h2 class="step-title">Make Payment</h2>
+                <p class="step-subtitle">Choose a channel and follow the instructions below.</p>
+            </div>
+
+            <div class="payment-options">
+                <div class="payment-card selected" onclick="selectPayment('sber')" id="sber-card">
+                    <div class="payment-header">
+                        <span class="payment-amount">10,000.00 RUB</span>
+                    </div>
+                    <div class="payment-method">Sber • CARD</div>
+                    <div style="color: #0b1b3a; font-weight: 500; margin-top: 0.5rem;">SELECTED</div>
+                </div>
+                <div class="payment-card" onclick="selectPayment('cash')" id="cash-card">
+                    <div class="payment-header">
+                        <span class="payment-amount">9,900.00 RUB</span>
+                        <span class="discount-badge">1% OFF</span>
+                    </div>
+                    <div class="payment-method">Cash</div>
+                    <div style="color: #718096; margin-top: 0.5rem;">SELECT</div>
+                </div>
+            </div>
+
+            <!-- Payment Details for Sber -->
+            <div id="sber-details" class="payment-details">
+                <h3 style="margin-bottom: 1.5rem;">PAYMENT DETAILS • Sber</h3>
+                
+                <div class="detail-row">
+                    <span class="detail-label">AMOUNT TO PAY</span>
+                    <span class="detail-value">10,000.00 RUB</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">BANK NAME</span>
+                    <span class="detail-value">Sber</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">CARD NUMBER</span>
+                    <span class="detail-value">2202 2088 0461 3132</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">CARD HOLDER</span>
+                    <span class="detail-value">Joseph</span>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                    <span class="reminder-link" onclick="toggleReminder()">🔔 NEED A REMINDER?</span>
+                </div>
+            </div>
+
+            <!-- Payment Details for Cash -->
+            <div id="cash-details" class="payment-details" style="display: none;">
+                <h3 style="margin-bottom: 1.5rem;">PAYMENT DETAILS • Cash</h3>
+                
+                <div class="detail-row">
+                    <span class="detail-label">AMOUNT TO PAY</span>
+                    <span class="detail-value">9,900.00 RUB</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">BANK NAME</span>
+                    <span class="detail-value">Sber</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">CARD NUMBER</span>
+                    <span class="detail-value">2202 2088 0461 3132</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">CARD HOLDER</span>
+                    <span class="detail-value">Joseph</span>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                    <span class="reminder-link" onclick="toggleReminder()">🔔 NEED A REMINDER?</span>
+                </div>
+
+                <div id="howToPay" class="how-to-pay">
+                    <h4 style="margin-bottom: 1rem;">How to pay</h4>
+                    <p>View steps</p>
+                    <ol style="margin-top: 0.5rem; padding-left: 1.5rem; color: #4a5568;">
+                        <li>Open your bank app...</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="back-btn" onclick="prevStep(2)">Back</button>
+                <button class="continue-btn" onclick="nextStep(4)">Continue to Upload Proof</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Upload Proof -->
+        <div id="step4" class="step-content" style="display: none;">
+            <div class="step-header">
+                <h2 class="step-title">Upload Payment Proof</h2>
+                <p class="step-subtitle">Please upload a screenshot or photo of the payment confirmation</p>
+            </div>
+
+            <div class="form-section">
+                <div style="border: 2px dashed #e2e8f0; border-radius: 16px; padding: 3rem; text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📎</div>
+                    <h3 style="margin-bottom: 0.5rem;">Drag and drop or click to upload</h3>
+                    <p style="color: #718096; margin-bottom: 1rem;">Supported: JPG, PNG, PDF (Max 10MB)</p>
+                    <input type="file" accept="image/*,.pdf" style="display: none;" id="fileInput">
+                    <button class="continue-btn" style="width: auto; padding: 0.75rem 2rem;" onclick="document.getElementById('fileInput').click()">
+                        Choose File
+                    </button>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="back-btn" onclick="prevStep(3)">Back</button>
+                <button class="continue-btn" onclick="completeTransaction()">Submit & Complete</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentStep = 1;
+        let selectedDelivery = 'mobile';
+        let selectedPayment = 'sber';
+
+        function nextStep(step) {
+            if (step === 2) {
+                // Validate delivery method selection
+                if (!selectedDelivery) {
+                    alert('Please select a delivery method');
+                    return;
+                }
+            } else if (step === 3) {
+                // Validate recipient details
+                const name = document.getElementById('recipientName')?.value;
+                const provider = document.getElementById('provider')?.value;
+                const phone = document.getElementById('phoneNumber')?.value;
+
+                if (!name || !provider || !phone) {
+                    alert('Please fill in all recipient details');
+                    return;
+                }
+            }
+
+            // Hide all steps
+            document.querySelectorAll('.step-content').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            // Show selected step
+            document.getElementById(`step${step}`).style.display = 'block';
+            currentStep = step;
+
+            // Update URL or progress if needed
+            window.scrollTo(0, 0);
+        }
+
+        function prevStep(step) {
+            nextStep(step);
+        }
+
+        function goBack() {
+            window.location.href = 'dashboard.html';
+        }
+
+        function selectDelivery(type) {
+            selectedDelivery = type;
+            
+            // Update UI
+            document.getElementById('mobile-card').classList.remove('selected');
+            document.getElementById('bank-card').classList.remove('selected');
+            
+            if (type === 'mobile') {
+                document.getElementById('mobile-card').classList.add('selected');
+                document.getElementById('selectedMethod').textContent = 'Mobile Money';
+            } else {
+                document.getElementById('bank-card').classList.add('selected');
+                document.getElementById('selectedMethod').textContent = 'Bank Account';
+            }
+        }
+
+        function selectPayment(type) {
+            selectedPayment = type;
+            
+            // Update UI
+            document.getElementById('sber-card').classList.remove('selected');
+            document.getElementById('cash-card').classList.remove('selected');
+            
+            if (type === 'sber') {
+                document.getElementById('sber-card').classList.add('selected');
+                document.getElementById('sber-details').style.display = 'block';
+                document.getElementById('cash-details').style.display = 'none';
+            } else {
+                document.getElementById('cash-card').classList.add('selected');
+                document.getElementById('sber-details').style.display = 'none';
+                document.getElementById('cash-details').style.display = 'block';
+            }
+        }
+
+        function changeMethod() {
+            nextStep(1);
+        }
+
+        function toggleReminder() {
+            const howToPay = document.getElementById('howToPay');
+            howToPay.classList.toggle('show');
+        }
+
+        function completeTransaction() {
+            alert('Transaction completed successfully!');
+            window.location.href = 'dashboard.html';
+        }
+
+        // Initialize file input
+        document.getElementById('fileInput')?.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                alert(`File "${e.target.files[0].name}" selected`);
+            }
+        });
+    </script>
+</body>
+</html>
