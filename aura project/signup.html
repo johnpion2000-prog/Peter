@@ -188,9 +188,8 @@
     </div>
 
     <script>
-        function handleSignup(event) {
+        async function handleSignup(event) {
             event.preventDefault();
-            
             // Reset error messages
             document.querySelectorAll('.error-message').forEach(el => {
                 el.style.display = 'none';
@@ -199,6 +198,8 @@
             // Get values
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
+            const displayName = document.getElementById('displayName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
@@ -225,19 +226,35 @@
                 isValid = false;
             }
 
-            if (isValid) {
-                const userData = {
-                    fullName: fullName,
-                    email: email,
-                    displayName: document.getElementById('displayName').value.trim(),
-                    phone: document.getElementById('phone').value.trim()
-                };
-                
-                localStorage.setItem('currentUser', JSON.stringify(userData));
-                
-                window.location.href = 'dashboard.html';
+            if (!isValid) {
+                return false;
             }
 
+            // Send signup data to backend
+            try {
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fullName,
+                        email,
+                        displayName,
+                        phone,
+                        password
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Account created successfully! Please sign in.');
+                    window.location.href = 'signin.html';
+                } else {
+                    alert(data.message || 'Signup failed.');
+                }
+            } catch (error) {
+                alert('An error occurred. Please try again.');
+            }
             return false;
         }
 

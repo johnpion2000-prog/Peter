@@ -623,25 +623,43 @@ Please help me resolve this issue.`;
                 return;
             }
 
-            // Prepare the data to send to the backend
-            const data = {
-                user_id: user.id,           // dynamic user ID
-                amount: transactionData.sendAmount
-            };
+            // Check if file is selected
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput || fileInput.files.length === 0) {
+                alert('Please upload a proof of payment image.');
+                return;
+            }
+
+            // Get the token
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                alert('Session expired. Please log in again.');
+                window.location.href = 'signin.html';
+                return;
+            }
+
+            // Prepare FormData with file
+            const formData = new FormData();
+            formData.append('recipient', transactionData.recipientName || 'N/A');
+            formData.append('amount', transactionData.sendAmount);
+            formData.append('currency', transactionData.sendCurrency);
+            formData.append('proof', fileInput.files[0]); // Add the file with field name "proof"
 
             try {
-                const res = await fetch('/transaction', {
+                const res = await fetch('/api/transactions', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    headers: { 
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData // Send FormData directly
                 });
 
                 const result = await res.json();
                 if (res.ok) {
-                    alert(result.message || 'Transaction sent!');
+                    alert('Transaction sent successfully!');
                     window.location.href = 'history.html';
                 } else {
-                    alert(result.error || 'Transaction failed');
+                    alert(result.error || 'Transaction failed. Please try again.');
                 }
             } catch (err) {
                 console.error(err);
@@ -651,7 +669,9 @@ Please help me resolve this issue.`;
 
         document.getElementById('fileInput')?.addEventListener('change', function(e) {
             if (e.target.files.length > 0) {
-                alert(`File "${e.target.files[0].name}" selected`);
+                const fileName = e.target.files[0].name;
+                const fileSize = (e.target.files[0].size / 1024 / 1024).toFixed(2);
+                alert(`File "${fileName}" (${fileSize}MB) selected`);
             }
         });
 
