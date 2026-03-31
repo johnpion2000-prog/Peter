@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Aura Remit</title>
+    <title>Dashboard - Aura payment</title>
     <style>
+        /* Your existing CSS – unchanged */
         * {
             margin: 0;
             padding: 0;
@@ -135,6 +136,39 @@
             color: #718096;
             font-size: 0.9rem;
             margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: #0b1b3a;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: underline;
+        }
+
+        .live-badge {
+            background: #10b981;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        .fallback-badge {
+            background: #f59e0b;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
         }
 
         .swap-container {
@@ -170,10 +204,31 @@
             background: transparent;
         }
 
+        .currency-select {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: #0b1b3a;
+            background: #f7fafc;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+        .currency-select:hover {
+            background: #e2e8f0;
+        }
+
         .swap-icon {
             text-align: center;
             margin: 1rem 0;
             color: #4a5568;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .swap-icon:hover {
+            transform: rotate(180deg);
         }
 
         .savings-badge {
@@ -184,6 +239,33 @@
             border-radius: 20px;
             font-size: 0.9rem;
             margin-top: 1rem;
+        }
+
+        .rate-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            color: #2d3748;
+            border-top: 1px solid #edf2f7;
+        }
+        .rate-row:first-of-type {
+            border-top: none;
+        }
+
+        .rate-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .source-badge {
+            background: #f59e0b;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-weight: 600;
         }
 
         .continue-btn {
@@ -214,16 +296,129 @@
             text-decoration: none;
             font-size: 0.9rem;
         }
+
+        /* Dropdown styles */
+        .dropdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+        }
+
+        .currency-dropdown {
+            position: absolute;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            width: 320px;
+            max-height: 500px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+            border: 1px solid #edf2f7;
+        }
+
+        .dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid #edf2f7;
+            font-weight: 600;
+            color: #0b1b3a;
+            position: sticky;
+            top: 0;
+            background: white;
+            font-size: 0.95rem;
+        }
+
+        .close-btn {
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #718096;
+        }
+
+        .currency-list {
+            padding: 0.5rem;
+        }
+
+        .currency-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.8rem 1rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .currency-item:hover {
+            background: #f7fafc;
+        }
+        .currency-item.selected {
+            background: #e6f0ff;
+        }
+        .country-flag {
+            font-size: 1.4rem;
+            margin-right: 0.8rem;
+            min-width: 28px;
+        }
+        .currency-details {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        .currency-code {
+            font-weight: 600;
+            color: #0b1b3a;
+            font-size: 0.95rem;
+            width: 45px;
+        }
+        .country-name {
+            color: #4a5568;
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
+        }
+        .currency-symbol {
+            color: #718096;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-left: auto;
+        }
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #a0aec0;
+            padding: 0.5rem 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #f8fafc;
+        }
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #e2e8f0;
+            border-top-color: #0b1b3a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">Aura Remit</div>
+        <div class="logo">Aura payment</div>
         <div class="nav-menu">
             <a href="#" class="active">Dashboard</a>
             <a href="send-money.html">Send Money</a>
-            <a href="#">History</a>
-            <a href="#">Profile</a>
+            <a href="history.html">History</a>
+            <a href="profile.html">Profile</a>
         </div>
         <div class="user-profile" id="userProfile">
             <span class="user-name" id="displayName">Loading...</span>
@@ -234,66 +429,68 @@
     <main class="main-content">
         <div class="send-money-header">
             <div class="step-indicator">
-                <div class="step active">
-                    <span class="step-number">1</span>
-                    <span>Amount</span>
-                </div>
-                <div class="step">
-                    <span class="step-number">2</span>
-                    <span>Recipient</span>
-                </div>
-                <div class="step">
-                    <span class="step-number">3</span>
-                    <span>Payment</span>
-                </div>
-                <div class="step">
-                    <span class="step-number">4</span>
-                    <span>Proof</span>
-                </div>
-                <div class="step">
-                    <span class="step-number">5</span>
-                    <span>Complete</span>
-                </div>
+                <div class="step active"><span class="step-number">1</span><span>Amount</span></div>
+                <div class="step"><span class="step-number">2</span><span>Recipient</span></div>
+                <div class="step"><span class="step-number">3</span><span>Payment</span></div>
+                <div class="step"><span class="step-number">4</span><span>Proof</span></div>
+                <div class="step"><span class="step-number">5</span><span>Complete</span></div>
             </div>
         </div>
 
         <div class="calculator-card">
-            <div class="timestamp">Last updated: <span id="current-time"></span></div>
-            
+            <div class="timestamp">
+                <span>Last updated: <span id="current-time"></span></span>
+                <span class="live-badge" id="rate-badge">LIVE</span>
+                <button class="refresh-btn" onclick="refreshRates()">↻ Refresh</button>
+            </div>
+
             <div class="swap-container">
                 <div class="input-row">
                     <span>You send</span>
                     <div class="currency-input-group">
-                        <span>RUB ▼</span>
-                        <input type="number" class="amount-input" id="send-amount" value="10000">
+                        <div class="currency-select" onclick="openDropdown('send')">
+                            <span id="send-currency">RUB</span>
+                            <span>▼</span>
+                        </div>
+                        <input type="number" class="amount-input" id="send-amount" value="10000" step="any">
                     </div>
                 </div>
-                
-                <div class="swap-icon">↓↑</div>
-                
+
+                <div class="swap-icon" onclick="swapCurrencies()">↓↑</div>
+
                 <div class="input-row">
                     <span>Recipient gets</span>
                     <div class="currency-input-group">
-                        <span>RWF ▼</span>
-                        <span class="amount-input" id="receive-amount">182,426</span>
+                        <div class="currency-select" onclick="openDropdown('receive')">
+                            <span id="receive-currency">XOF</span>
+                            <span>▼</span>
+                        </div>
+                        <span class="amount-input" id="receive-amount">—</span>
                     </div>
                 </div>
-                
-                <div class="savings-badge" id="savings-badge">🔗 YOU SAVE Rwf 3577</div>
+
+                <div class="savings-badge" id="savings-badge">🔗 YOU SAVE CFA 0</div>
             </div>
 
-            <div style="padding: 1rem 0;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                    <span>Total fee</span>
-                    <span id="total-fee">₮ 100.00</span>
+            <div class="rate-row">
+                <div class="rate-info">
+                    <span>Exchange rate</span>
+                    <span class="source-badge" id="rate-source">LIVE</span>
                 </div>
-                <div style="display: flex; justify-content: space-between;">
-                    <span>Our rate</span>
-                    <span id="exchange-rate">1 RUB = 18.4270 RWF</span>
+                <span id="exchange-rate">1 RUB = -- CFA</span>
+            </div>
+            <div class="rate-row">
+                <div class="rate-info">
+                    <span>Inverse rate</span>
                 </div>
+                <span id="inverse-rate">1 CFA = -- RUB</span>
+            </div>
+            <div class="rate-row">
+                <span>Total fee</span>
+                <span id="total-fee">₮ 100.00</span>
             </div>
 
-            <button class="continue-btn" onclick="window.location.href='send-money.html'">
+            <button class="continue-btn" id="continue-btn">
                 Continue to Send Money
             </button>
 
@@ -303,55 +500,272 @@
         </div>
     </main>
 
+    <!-- Dropdown Overlay & Menu -->
+    <div class="dropdown-overlay" id="dropdownOverlay" onclick="closeDropdown()"></div>
+    <div class="currency-dropdown" id="currencyDropdown">
+        <div class="dropdown-header">
+            <span>Select country</span>
+            <span class="close-btn" onclick="closeDropdown()">✕</span>
+        </div>
+        <div class="currency-list" id="currencyList"></div>
+    </div>
+
     <script>
-        // Load user data
-        function loadUserData() {
-            const userData = JSON.parse(localStorage.getItem('currentUser'));
-            if (userData) {
-                const displayName = userData.displayName || userData.fullName.split(' ')[0];
-                document.getElementById('displayName').textContent = displayName;
-                
-                const initials = userData.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
-                document.getElementById('userInitials').textContent = initials.substring(0, 2);
-            } else {
-                window.location.href = 'signup.html';
+        // ---------- Currency Data ----------
+        const countries = [
+            // West African CFA (XOF)
+            { flag: '🇧🇯', code: 'XOF', symbol: 'CFA', country: 'Benin' },
+            { flag: '🇧🇫', code: 'XOF', symbol: 'CFA', country: 'Burkina Faso' },
+            { flag: '🇨🇮', code: 'XOF', symbol: 'CFA', country: 'Côte d\'Ivoire' },
+            { flag: '🇬🇼', code: 'XOF', symbol: 'CFA', country: 'Guinea-Bissau' },
+            { flag: '🇲🇱', code: 'XOF', symbol: 'CFA', country: 'Mali' },
+            { flag: '🇳🇪', code: 'XOF', symbol: 'CFA', country: 'Niger' },
+            { flag: '🇸🇳', code: 'XOF', symbol: 'CFA', country: 'Senegal' },
+            { flag: '🇹🇬', code: 'XOF', symbol: 'CFA', country: 'Togo' },
+            // Central African CFA (XAF)
+            { flag: '🇨🇲', code: 'XAF', symbol: 'FCFA', country: 'Cameroon' },
+            { flag: '🇨🇫', code: 'XAF', symbol: 'FCFA', country: 'Central African Republic' },
+            { flag: '🇹🇩', code: 'XAF', symbol: 'FCFA', country: 'Chad' },
+            { flag: '🇬🇶', code: 'XAF', symbol: 'FCFA', country: 'Equatorial Guinea' },
+            { flag: '🇬🇦', code: 'XAF', symbol: 'FCFA', country: 'Gabon' },
+            { flag: '🇨🇬', code: 'XAF', symbol: 'FCFA', country: 'Republic of Congo' },
+            // Send currency – only RUB
+            { flag: '🇷🇺', code: 'RUB', symbol: '₽', country: 'Russia' }
+        ];
+
+        let sendCurrency = 'RUB';
+        let receiveCurrency = 'XOF';
+        let activeField = 'receive';
+        let liveRate = null;
+        const fallbackRates = {
+            'RUB-XOF': 6.72,
+            'RUB-XAF': 6.72,
+            'XOF-RUB': 0.15,
+            'XAF-RUB': 0.15,
+            'XOF-XAF': 0.99,
+            'XAF-XOF': 1.01
+        };
+
+        // DOM elements
+        const dropdown = document.getElementById('currencyDropdown');
+        const overlay = document.getElementById('dropdownOverlay');
+        const currencyList = document.getElementById('currencyList');
+        const sendAmount = document.getElementById('send-amount');
+        const receiveAmountSpan = document.getElementById('receive-amount');
+        const savingsBadge = document.getElementById('savings-badge');
+        const exchangeRateSpan = document.getElementById('exchange-rate');
+        const inverseRateSpan = document.getElementById('inverse-rate');
+        const rateSourceBadge = document.getElementById('rate-source');
+        const rateBadge = document.getElementById('rate-badge');
+        const totalFeeSpan = document.getElementById('total-fee');
+        const continueBtn = document.getElementById('continue-btn');
+
+        // Helper functions
+        function getSymbol(code) {
+            const c = countries.find(c => c.code === code);
+            return c ? c.symbol : '';
+        }
+
+        function getFallbackRate() {
+            const pair = `${sendCurrency}-${receiveCurrency}`;
+            if (fallbackRates[pair] !== undefined) return fallbackRates[pair];
+            return 1;
+        }
+
+        async function fetchLiveRate() {
+            try {
+                rateSourceBadge.textContent = 'LOADING...';
+                exchangeRateSpan.innerHTML = '<span class="loading"></span>';
+                inverseRateSpan.innerHTML = '<span class="loading"></span>';
+                rateBadge.className = 'live-badge';
+                rateBadge.textContent = 'LIVE';
+
+                if (sendCurrency === receiveCurrency) {
+                    liveRate = 1;
+                    rateSourceBadge.textContent = 'FIXED';
+                    updateDisplay();
+                    return true;
+                }
+
+                const url = `https://api.exchangerate.host/latest?base=${sendCurrency}&symbols=${receiveCurrency}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                if (data && data.rates && data.rates[receiveCurrency]) {
+                    liveRate = data.rates[receiveCurrency];
+                    rateSourceBadge.textContent = 'LIVE';
+                    updateDisplay();
+                    return true;
+                } else {
+                    throw new Error('Invalid response');
+                }
+            } catch (error) {
+                console.error('Failed to fetch live rate:', error);
+                liveRate = getFallbackRate();
+                rateSourceBadge.textContent = 'FALLBACK';
+                rateBadge.className = 'live-badge fallback-badge';
+                rateBadge.textContent = 'FALLBACK';
+                updateDisplay();
+                return false;
             }
         }
 
-        // Update timestamp
+        function updateDisplay() {
+            if (liveRate === null) return;
+
+            const receiveSymbol = getSymbol(receiveCurrency);
+            const sendSymbol = getSymbol(sendCurrency);
+            exchangeRateSpan.textContent = `1 ${sendCurrency} = ${liveRate.toFixed(6)} ${receiveCurrency}`;
+            const inverse = 1 / liveRate;
+            inverseRateSpan.textContent = `1 ${receiveCurrency} = ${inverse.toFixed(6)} ${sendSymbol}`;
+
+            const amount = parseFloat(sendAmount.value) || 0;
+            let receiveAmount = amount * liveRate;
+            if (Math.abs(receiveAmount - Math.round(receiveAmount)) > 0.01) {
+                receiveAmountSpan.textContent = receiveAmount.toFixed(2);
+            } else {
+                receiveAmountSpan.textContent = Math.round(receiveAmount).toLocaleString();
+            }
+
+            const savings = amount * 0.02 * liveRate;
+            savingsBadge.textContent = `🔗 YOU SAVE ${receiveSymbol} ${savings.toFixed(2)}`;
+
+            totalFeeSpan.textContent = `₮ 100.00`; // fixed fee for demo
+        }
+
+        function recalcFromSend() {
+            updateDisplay();
+        }
+
+        async function swapCurrencies() {
+            const oldSend = sendCurrency;
+            const oldReceive = receiveCurrency;
+            sendCurrency = oldReceive;
+            receiveCurrency = oldSend;
+            document.getElementById('send-currency').textContent = sendCurrency;
+            document.getElementById('receive-currency').textContent = receiveCurrency;
+            await fetchLiveRate();
+        }
+
+        async function refreshRates() {
+            await fetchLiveRate();
+        }
+
+        // Dropdown rendering
+        function renderCurrencyDropdown() {
+            currencyList.innerHTML = '';
+            const africanCountries = countries.filter(c => c.code !== 'RUB');
+            const rubCountry = countries.find(c => c.code === 'RUB');
+
+            const africaTitle = document.createElement('div');
+            africaTitle.className = 'section-title';
+            africaTitle.textContent = 'AFRICAN COUNTRIES';
+            currencyList.appendChild(africaTitle);
+            africanCountries.forEach(country => addCountryItem(country));
+
+            const sendTitle = document.createElement('div');
+            sendTitle.className = 'section-title';
+            sendTitle.textContent = 'SEND FROM (RUB)';
+            currencyList.appendChild(sendTitle);
+            addCountryItem(rubCountry);
+        }
+
+        function addCountryItem(country) {
+            const item = document.createElement('div');
+            item.className = 'currency-item';
+            const isSelected = (activeField === 'send' && country.code === sendCurrency) ||
+                              (activeField === 'receive' && country.code === receiveCurrency);
+            if (isSelected) item.classList.add('selected');
+            item.innerHTML = `
+                <div style="display: flex; align-items: center; width: 100%;">
+                    <span class="country-flag">${country.flag}</span>
+                    <div class="currency-details">
+                        <span class="currency-code">${country.code}</span>
+                        <span class="country-name">${country.country}</span>
+                    </div>
+                    <span class="currency-symbol">${country.symbol}</span>
+                </div>
+            `;
+            item.onclick = () => selectCountry(country);
+            currencyList.appendChild(item);
+        }
+
+        function openDropdown(field) {
+            activeField = field;
+            renderCurrencyDropdown();
+            const target = event.target.closest('.currency-select');
+            if (!target) return;
+            const rect = target.getBoundingClientRect();
+            dropdown.style.display = 'block';
+            dropdown.style.position = 'fixed';
+            dropdown.style.top = (rect.bottom + 5) + 'px';
+            dropdown.style.left = rect.left + 'px';
+            overlay.style.display = 'block';
+        }
+
+        function closeDropdown() {
+            dropdown.style.display = 'none';
+            overlay.style.display = 'none';
+        }
+
+        async function selectCountry(country) {
+            if (activeField === 'send') {
+                sendCurrency = country.code;
+                document.getElementById('send-currency').textContent = sendCurrency;
+            } else {
+                receiveCurrency = country.code;
+                document.getElementById('receive-currency').textContent = receiveCurrency;
+            }
+            closeDropdown();
+            await fetchLiveRate();
+        }
+
+        // Timestamp
         function updateTimestamp() {
             const now = new Date();
-            document.getElementById('current-time').textContent = 
-                now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', {
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+            });
         }
 
-        // Calculator logic
-        const sendAmount = document.getElementById('send-amount');
-        const receiveAmount = document.getElementById('receive-amount');
-        const savingsBadge = document.getElementById('savings-badge');
-        const totalFee = document.getElementById('total-fee');
-        const exchangeRate = document.getElementById('exchange-rate');
+        // User data from localStorage
+        function loadUserData() {
+            const userData = JSON.parse(localStorage.getItem('currentUser'));
+            if (!userData) {
+                window.location.href = 'signup.html';
+                return;
+            }
+            const displayName = userData.displayName || userData.fullName.split(' ')[0];
+            document.getElementById('displayName').textContent = displayName;
+            const initials = userData.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+            document.getElementById('userInitials').textContent = initials.substring(0, 2);
+        }
 
-        const rate = 18.4270;
-        const fee = 100;
-
-        function calculateReceive() {
+        // Continue to Send Money: pass selected currencies and amount via URL parameters
+        function goToSendMoney() {
             const amount = parseFloat(sendAmount.value) || 0;
-            const receive = amount * rate;
-            const savings = (amount * 0.02).toFixed(0);
-            
-            receiveAmount.textContent = Math.round(receive).toLocaleString();
-            savingsBadge.textContent = `🔗 YOU SAVE Rwf ${parseInt(savings).toLocaleString()}`;
-            totalFee.textContent = `₮ ${fee}.00`;
-            exchangeRate.textContent = `1 RUB = ${rate.toFixed(4)} RWF`;
+            const sendCode = sendCurrency;
+            const receiveCode = receiveCurrency;
+            const url = `send-money.html?amount=${amount}&send=${sendCode}&receive=${receiveCode}&rate=${liveRate}`;
+            window.location.href = url;
         }
 
-        // Initialize
-        loadUserData();
-        updateTimestamp();
-        setInterval(updateTimestamp, 1000);
-        sendAmount.addEventListener('input', calculateReceive);
-        calculateReceive();
+        // Initialise
+        async function init() {
+            loadUserData();
+            await fetchLiveRate();
+            setInterval(fetchLiveRate, 60000);
+            setInterval(updateTimestamp, 1000);
+            sendAmount.addEventListener('input', recalcFromSend);
+            continueBtn.addEventListener('click', goToSendMoney);
+            updateTimestamp();
+        }
+
+        init();
+
+        // Escape key closes dropdown
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeDropdown();
+        });
     </script>
 </body>
 </html>

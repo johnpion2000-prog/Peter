@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account - Aura Remit</title>
+    <title>Create Account - Aura payment</title>
     <style>
         * {
             margin: 0;
@@ -132,7 +132,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="logo">Aura Remit</div>
+        <div class="logo">Aura payment</div>
         
         <div class="signup-card">
             <h2>Create Account</h2>
@@ -141,24 +141,24 @@
             <form id="signupForm" onsubmit="return handleSignup(event)">
                 <div class="form-group">
                     <label>Full Name</label>
-                    <input type="text" id="fullName" placeholder="Ntivuguruzwa jean Pierre" required>
+                    <input type="text" id="fullName" placeholder="alex walter" required>
                     <div class="error-message" id="nameError"></div>
                 </div>
 
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="email" placeholder="johnpion2000@gmail.com" required>
+                    <input type="email" id="email" placeholder="example@gmail.com" required>
                     <div class="error-message" id="emailError"></div>
                 </div>
 
                 <div class="form-group">
                     <label>Display Name <span class="optional">(Optional)</span></label>
-                    <input type="text" id="displayName" placeholder="Mugisha">
+                    <input type="text" id="displayName" placeholder="Kone">
                 </div>
 
                 <div class="form-group">
                     <label>Phone Number <span class="optional">(Optional)</span></label>
-                    <input type="tel" id="phone" placeholder="+250788123456">
+                    <input type="tel" id="phone" placeholder="+7 000 000 00 00 ">
                 </div>
 
                 <div class="form-group">
@@ -226,7 +226,6 @@
             }
 
             if (isValid) {
-                // Save user data to localStorage (temporary)
                 const userData = {
                     fullName: fullName,
                     email: email,
@@ -236,7 +235,6 @@
                 
                 localStorage.setItem('currentUser', JSON.stringify(userData));
                 
-                // Redirect to dashboard
                 window.location.href = 'dashboard.html';
             }
 

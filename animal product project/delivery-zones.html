@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nana Market · Delivery & Address</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        body { background:#f5f9fe; padding:2rem; }
+        .container { max-width:1200px; margin:0 auto; }
+        .navbar { display:flex; flex-wrap:wrap; justify-content:space-between; background:white; padding:1rem 2rem; border-radius:60px; margin-bottom:2rem; }
+        .logo { font-size:2rem; font-weight:800; background:linear-gradient(145deg,#1d4e6b,#c05e1a); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .nav-links a { text-decoration:none; background:#eef3f9; color:#1d4059; padding:0.5rem 1rem; border-radius:40px; margin:0 0.2rem; }
+        h2 { color:#1d4e6b; margin:1.5rem 0 1rem; border-left:7px solid #e67e2a; padding-left:1rem; }
+        .address-section { background:white; border-radius:2rem; padding:2rem; margin-bottom:2rem; }
+        .address-label { font-weight:600; color:#1d4e6b; margin-bottom:0.5rem; display:block; }
+        .address-input { width:100%; padding:1rem 1.2rem; border:2px solid #c7ddec; border-radius:50px; font-size:1rem; margin-bottom:1rem; }
+        .address-input:focus { border-color:#e67e2a; outline:none; }
+        .map-container { margin:2rem 0; border-radius:2rem; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.1); }
+        .delivery-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:1rem; margin:2rem 0; }
+        .delivery-item { background:white; border-radius:2rem; padding:1rem; text-align:center; border:1px solid #bdd2e6; cursor:pointer; transition:0.1s; }
+        .delivery-item:hover { background:#e3effa; }
+        .delivery-item.selected { background:#1d4e6b; color:white; border-color:#1d4e6b; }
+        .btn { background:#1d4e6b; color:white; border:none; padding:0.8rem 1.5rem; border-radius:50px; text-decoration:none; display:inline-block; margin-top:1rem; }
+        .info-note { font-size:0.9rem; color:#c05e1a; margin-top:0.5rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="navbar">
+        <div class="logo"><i class="fas fa-store"></i> Nana</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="payment.html">Payment</a>
+        </div>
+    </div>
+
+    <h2>📍 Delivery address & zone</h2>
+
+    <!-- Address search section -->
+    <div class="address-section">
+        <label class="address-label" for="addressInput"><i class="fas fa-search"></i> Search your address (Kigali area)</label>
+        <input type="text" id="addressInput" class="address-input" placeholder="Type your street, sector, or landmark...">
+        <div id="addressMessage" class="info-note"></div>
+    </div>
+
+    <!-- Google Maps embed (will be recentered if Places API is used) -->
+    <div class="map-container">
+        <iframe 
+            id="mapFrame"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d255118.61842791075!2d29.983333!3d-1.953611!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x19dca4258ed8e797%3A0x53c9d99c7d0e0e4f!2sKigali%2C%20Rwanda!5e0!3m2!1sen!2s!4v1614321123456!5m2!1sen!2s"
+            width="100%" 
+            height="400" 
+            style="border:0;" 
+            allowfullscreen="" 
+            loading="lazy">
+        </iframe>
+    </div>
+
+    <h2>📦 Or select a delivery zone (Kigali sectors)</h2>
+    <div class="delivery-grid" id="deliveryGrid"></div>
+    <p id="selectedDisplay" style="margin:1rem 0; font-weight:600;"></p>
+    <a href="payment.html" class="btn">Continue to payment</a>
+</div>
+
+<!-- Google Maps API (with Places library) – replace YOUR_API_KEY -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initAutocomplete" async defer></script>
+
+<script>
+    // ----- Full list of Kigali sectors (all official sectors in Gasabo, Kicukiro, Nyarugenge) -----
+    const kigaliSectors = [
+        // Gasabo District (15 sectors)
+        "Bumbogo", "Gatsata", "Jali", "Gikomero", "Gisozi", "Jabana", "Kinyinya", "Ndera", "Nduba", "Rusororo", "Rutunga", "Kacyiru", "Kimihurura", "Kimironko", "Remera",
+        // Kicukiro District (10 sectors)
+        "Gahanga", "Gatenga", "Gikondo", "Kagarama", "Kanombe", "Kicukiro", "Kigarama", "Masaka", "Niboye", "Nyarugunga",
+        // Nyarugenge District (10 sectors)
+        "Gitega", "Kanyinya", "Kigali", "Kimisagara", "Mageragere", "Muhima", "Nyakabanda", "Nyamirambo", "Nyarugenge", "Rwezamenyo"
+    ];
+
+    // Optionally add some extra well‑known cells/villages (they will appear as separate items)
+    const extraZones = [
+        "Kacyiru (Cell)", "Remera (Cell)", "Kanombe (Airport)", "Gisozi (Genocide Memorial)", "Nyabugogo", "Kimironko Market"
+    ];
+
+    // Combine and sort
+    const allZones = [...new Set([...kigaliSectors, ...extraZones])].sort();
+
+    // ----- Google Places Autocomplete -----
+    let autocompleteInput;
+    let autocomplete;
+    let mapFrame = document.getElementById('mapFrame');
+
+    window.initAutocomplete = function() {
+        const input = document.getElementById('addressInput');
+        if (!input) return;
+
+        // Create the autocomplete object (restricted to Rwanda)
+        autocomplete = new google.maps.places.Autocomplete(input, {
+            types: ['address'],
+            componentRestrictions: { country: 'RW' }
+        });
+
+        // When user selects a place
+        autocomplete.addListener('place_changed', function() {
+            const place = autocomplete.getPlace();
+            if (!place.geometry) {
+                document.getElementById('addressMessage').innerText = 'No details available for this address.';
+                return;
+            }
+
+            // Store the full address in localStorage
+            localStorage.setItem('nanaDeliveryAddress', place.formatted_address || input.value);
+
+            // Update message
+            document.getElementById('addressMessage').innerHTML = `✅ Address saved: ${place.formatted_address || input.value}`;
+
+            // Recenter the map (using the place's coordinates)
+            if (place.geometry.location) {
+                const lat = place.geometry.location.lat();
+                const lng = place.geometry.location.lng();
+                // Update iframe src (embed map with new center)
+                mapFrame.src = `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${lat},${lng}`;
+            }
+        });
+    };
+
+    // Fallback if API key is missing or Google Maps fails to load
+    window.addEventListener('load', function() {
+        const input = document.getElementById('addressInput');
+        if (!window.google) {
+            // No API key – use regular text input with manual save
+            input.placeholder = "Enter your address (Google Maps not loaded)";
+            input.addEventListener('change', function() {
+                localStorage.setItem('nanaDeliveryAddress', input.value);
+                document.getElementById('addressMessage').innerText = `Address saved: ${input.value}`;
+            });
+        } else {
+            // Google Maps loaded, but autocomplete might not be initialized yet (handled by callback)
+        }
+    });
+
+    // ----- Delivery zone grid (Kigali sectors) -----
+    (function() {
+        const savedZone = localStorage.getItem('nanaDeliveryLocation') || '';
+        const savedAddress = localStorage.getItem('nanaDeliveryAddress') || '';
+
+        // Show previously saved address in input
+        if (savedAddress) {
+            document.getElementById('addressInput').value = savedAddress;
+            document.getElementById('addressMessage').innerText = `Previously saved: ${savedAddress}`;
+        }
+
+        const grid = document.getElementById('deliveryGrid');
+        grid.innerHTML = allZones.map(z => 
+            `<div class="delivery-item ${z === savedZone ? 'selected' : ''}" data-zone="${z}">${z}</div>`
+        ).join('');
+
+        document.querySelectorAll('.delivery-item').forEach(el => {
+            el.addEventListener('click', () => {
+                document.querySelectorAll('.delivery-item').forEach(e => e.classList.remove('selected'));
+                el.classList.add('selected');
+                const zone = el.dataset.zone;
+                localStorage.setItem('nanaDeliveryLocation', zone);
+                document.getElementById('selectedDisplay').innerText = `✅ Zone selected: ${zone}`;
+            });
+        });
+
+        if (savedZone) document.getElementById('selectedDisplay').innerText = `✅ Zone selected: ${savedZone}`;
+    })();
+</script>
+
+<!-- If Google Maps API fails (e.g., no key), the fallback will work -->
+</body>
+</html>

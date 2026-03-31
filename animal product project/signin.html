@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nana Market · Sign In</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', sans-serif; }
+        body { background:#f5f9fe; color:#1e2e3f; line-height:1.5; padding:2rem; }
+        .container { max-width:500px; margin:0 auto; }
+        .navbar { display:flex; flex-wrap:wrap; justify-content:space-between; background:white; padding:1rem 2rem; border-radius:60px; margin-bottom:2rem; }
+        .logo { font-size:2rem; font-weight:800; background:linear-gradient(145deg,#1d4e6b,#c05e1a); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .nav-links a { text-decoration:none; background:#eef3f9; color:#1d4059; padding:0.5rem 1rem; border-radius:40px; font-weight:600; margin:0 0.2rem; }
+        .form-card { background:white; border-radius:3rem; padding:2.5rem 2rem; box-shadow:0 20px 35px -10px #1d4e6b55; }
+        .form-group { margin-bottom:1.5rem; }
+        .form-group label { font-weight:600; color:#1d4e6b; display:block; margin-bottom:0.4rem; }
+        .form-group input { width:100%; padding:1rem 1.2rem; border:2px solid #c7ddec; border-radius:50px; }
+        .btn { background:#1d4e6b; color:white; border:none; padding:1rem; border-radius:50px; font-weight:700; width:100%; cursor:pointer; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="navbar">
+        <div class="logo"><i class="fas fa-store"></i> Nana</div>
+        <div class="nav-links"><a href="index.html">Home</a><a href="signup.html">Sign Up</a></div>
+    </div>
+    <div class="form-card">
+        <h2 style="margin-bottom:1.5rem;">Sign in</h2>
+        <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="you@example.com"></div>
+        <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="******"></div>
+        <button class="btn" id="loginBtn">Sign in</button>
+        <p class="small-note" style="margin-top:1rem;" id="loginMessage"></p>
+    </div>
+</div>
+<script>
+    document.getElementById('loginBtn').addEventListener('click', () => {
+        const email = document.getElementById('loginEmail').value.trim();
+        const pass = document.getElementById('loginPass').value;
+        // Simple demo: accept any non-empty email, create a user based on email
+        if (!email || !pass) { document.getElementById('loginMessage').innerText = 'Enter credentials'; return; }
+        const type = email.includes('vendor') ? 'vendor' : 'buyer';
+        const name = email.split('@')[0];
+        const user = { name, email, password: pass, type };
+        localStorage.setItem('nanaCurrentUser', JSON.stringify(user));
+        window.location.href = 'dashboard.html';
+    });
+</script>
+</body>
+</html>
