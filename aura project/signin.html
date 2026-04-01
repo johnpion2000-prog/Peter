@@ -330,7 +330,9 @@
                 <a href="#" id="forgotPasswordBtn">Forgot password?</a>
             </div>
 
-            <button type="submit" class="signin-btn">
+            <div id="feedbackMessage" style="display: none; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; text-align: center;"></div>
+
+            <button type="submit" class="signin-btn" id="submitBtn">
                 Sign In
             </button>
 
@@ -458,34 +460,92 @@
         return false;
     }
 
-    // ---------- SIGN IN LOGIC (improved) ----------
-    window.handleSignIn = function(event) {
+    // ---------- SIGN IN LOGIC (Backend API) ----------
+    window.handleSignIn = async function(event) {
         event.preventDefault();
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
+        const feedbackDiv = document.getElementById('feedbackMessage');
         const errorEl = document.getElementById('loginError');
+        const submitBtn = document.getElementById('submitBtn');
 
         if (!email || !password) {
-            errorEl.textContent = 'Please fill in both fields';
-            errorEl.style.display = 'block';
+            feedbackDiv.style.display = 'block';
+            feedbackDiv.style.background = '#fed7d7';
+            feedbackDiv.style.color = '#742a2a';
+            feedbackDiv.style.border = '2px solid #fc8181';
+            feedbackDiv.innerHTML = '⚠️ Please fill in both fields';
             return false;
         }
 
-        const users = getUsers();
-        const matchedUser = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
+        // Disable button and show loading state
+        submitBtn.disabled = true;
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = '⏳ Signing in...';
 
-        if (matchedUser) {
-            // store current session
-            const session = {
-                email: matchedUser.email,
-                fullName: matchedUser.fullName,
-                displayName: matchedUser.displayName || matchedUser.fullName.split(' ')[0]
-            };
-            localStorage.setItem('currentUser', JSON.stringify(session));
-            window.location.href = 'dashboard.html';
-        } else {
-            errorEl.textContent = 'Invalid email or password. Try demo@aurapay.com / demo123';
-            errorEl.style.display = 'block';
+        try {
+            console.log('📝 Attempting login with:', email);
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+            console.log('📨 Login response status:', response.status);
+            console.log('📨 Response data:', data);
+
+            if (response.ok && data.token) {
+                // Store session token and user info
+                localStorage.setItem('authToken', data.token);
+                // Convert snake_case fields to camelCase for consistency
+                const userData = data.user || {};
+                const normalizedUser = {
+                    id: userData.id,
+                    fullName: userData.fullName || userData.full_name,
+                    displayName: userData.displayName || userData.display_name,
+                    email: userData.email,
+                    role: userData.role || 'user'
+                };
+                console.log('✓ Saving user data:', normalizedUser);
+                localStorage.setItem('currentUser', JSON.stringify(normalizedUser));
+                
+                // Show success message
+                feedbackDiv.style.display = 'block';
+                feedbackDiv.style.background = '#c6f6d5';
+                feedbackDiv.style.color = '#22543d';
+                feedbackDiv.style.border = '2px solid #9ae6b4';
+                feedbackDiv.innerHTML = '✅ <strong>Sign in successful!</strong><br><small>Redirecting to dashboard...</small>';
+                
+                // Small delay to ensure localStorage is set
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 2000);
+            } else {
+                const errorMsg = data.message || 'Invalid email or password';
+                console.log('❌ Login failed:', errorMsg);
+                
+                feedbackDiv.style.display = 'block';
+                feedbackDiv.style.background = '#fed7d7';
+                feedbackDiv.style.color = '#742a2a';
+                feedbackDiv.style.border = '2px solid #fc8181';
+                feedbackDiv.innerHTML = '❌ ' + errorMsg;
+                
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        } catch (error) {
+            console.error('❌ Network error:', error);
+            feedbackDiv.style.display = 'block';
+            feedbackDiv.style.background = '#fed7d7';
+            feedbackDiv.style.color = '#742a2a';
+            feedbackDiv.style.border = '2px solid #fc8181';
+            feedbackDiv.innerHTML = '❌ <strong>Connection Error</strong><br>Make sure the server is running at http://localhost:3000<br><small>' + error.message + '</small>';
+            
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
         }
         return false;
     };

@@ -729,15 +729,25 @@
 
         // User data from localStorage
         function loadUserData() {
-            const userData = JSON.parse(localStorage.getItem('currentUser'));
-            if (!userData) {
-                window.location.href = 'signup.html';
-                return;
+            try {
+                const userData = JSON.parse(localStorage.getItem('currentUser'));
+                if (!userData) {
+                    console.log('No user data found, redirecting to signin');
+                    window.location.href = 'signin.html';
+                    return;
+                }
+                // Handle both snake_case (from DB) and camelCase (legacy)
+                const fullName = userData.fullName || userData.full_name || 'User';
+                const displayName = userData.displayName || userData.display_name || fullName.split(' ')[0];
+                
+                document.getElementById('displayName').textContent = displayName;
+                const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+                document.getElementById('userInitials').textContent = initials.substring(0, 2);
+            } catch (err) {
+                console.error('Error loading user data:', err);
+                localStorage.removeItem('currentUser');
+                window.location.href = 'signin.html';
             }
-            const displayName = userData.displayName || userData.fullName.split(' ')[0];
-            document.getElementById('displayName').textContent = displayName;
-            const initials = userData.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
-            document.getElementById('userInitials').textContent = initials.substring(0, 2);
         }
 
         // Continue to Send Money: pass selected currencies and amount via URL parameters

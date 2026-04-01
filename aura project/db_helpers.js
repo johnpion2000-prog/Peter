@@ -1,17 +1,30 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const db = new sqlite3.Database(path.join(__dirname, 'aura.db'));
+const dbPath = path.join(__dirname, 'aura.db');
+const db = new sqlite3.Database(dbPath, (err) => {
+  if (err) {
+    console.error('❌ Database connection error:', err.message);
+  } else {
+    console.log('✓ Connected to aura.db');
+  }
+});
 
 // ---- USER FUNCTIONS ----
 
 // Create a new user account
 function createUser(fullName, email, passwordHash, displayName, callback) {
+  console.log('Creating user:', { fullName, email, displayName });
+  
   db.run(
     `INSERT INTO users (full_name, email, password_hash, display_name) VALUES (?, ?, ?, ?)`,
     [fullName, email, passwordHash, displayName],
     function(err) {
-      if (err) return callback(err);
+      if (err) {
+        console.error('❌ Error creating user:', err.message);
+        return callback(err);
+      }
+      console.log('✓ User created with ID:', this.lastID);
       callback(null, { id: this.lastID });
     }
   );
@@ -19,7 +32,18 @@ function createUser(fullName, email, passwordHash, displayName, callback) {
 
 // Get user by email
 function getUserByEmail(email, callback) {
-  db.get(`SELECT * FROM users WHERE email = ?`, [email], callback);
+  db.get(`SELECT * FROM users WHERE email = ?`, [email], (err, row) => {
+    if (err) {
+      console.error('❌ Error fetching user by email:', err.message);
+      return callback(err);
+    }
+    if (row) {
+      console.log('✓ Found user:', row.email);
+    } else {
+      console.log('ℹ No user found with email:', email);
+    }
+    callback(null, row);
+  });
 }
 
 // Get user by ID
@@ -66,10 +90,19 @@ function getAllUsers(callback) {
 
 // Log a sign-in
 function logSignIn(userId, ipAddress, callback) {
+  console.log('📝 Logging sign-in for user ID:', userId);
+  
   db.run(
     `INSERT INTO signin_logs (user_id, ip_address) VALUES (?, ?)`,
     [userId, ipAddress],
-    callback
+    function(err) {
+      if (err) {
+        console.error('❌ Error logging sign-in:', err.message);
+        return callback(err);
+      }
+      console.log('✓ Sign-in logged');
+      callback();
+    }
   );
 }
 

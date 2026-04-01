@@ -128,6 +128,77 @@
             margin-top: 0.25rem;
             display: none;
         }
+
+        .success-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-modal.show {
+            display: flex;
+        }
+
+        .success-box {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounce 0.6s ease-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .success-box h3 {
+            color: #22863a;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .success-box p {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .countdown {
+            color: #0b1b3a;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -176,7 +247,9 @@
                     <div class="error-message" id="confirmError"></div>
                 </div>
 
-                <button type="submit" class="create-account-btn">
+                <div id="feedbackMessage" style="display: none; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; text-align: center;"></div>
+
+                <button type="submit" class="create-account-btn" id="submitBtn">
                     Create Account
                 </button>
 
@@ -187,13 +260,26 @@
         </div>
     </div>
 
+    <div id="successModal" class="success-modal">
+        <div class="success-box">
+            <div class="success-icon">✅</div>
+            <h3>Account Created Successfully!</h3>
+            <p>Your account has been created and is ready to use.</p>
+            <p>You will be redirected to sign in in <span class="countdown"><span id="countdown">3</span> seconds</span></p>
+        </div>
+    </div>
+
     <script>
         async function handleSignup(event) {
             event.preventDefault();
+            
             // Reset error messages
             document.querySelectorAll('.error-message').forEach(el => {
                 el.style.display = 'none';
             });
+
+            const feedbackDiv = document.getElementById('feedbackMessage');
+            feedbackDiv.style.display = 'none';
 
             // Get values
             const fullName = document.getElementById('fullName').value.trim();
@@ -202,6 +288,7 @@
             const phone = document.getElementById('phone').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
+            const submitBtn = document.getElementById('submitBtn');
 
             let isValid = true;
 
@@ -230,8 +317,12 @@
                 return false;
             }
 
-            // Send signup data to backend
+            // Disable button and show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Creating account...';
+
             try {
+                console.log('📝 Sending signup request for:', email);
                 const response = await fetch('/api/auth/signup', {
                     method: 'POST',
                     headers: {
@@ -245,15 +336,51 @@
                         password
                     })
                 });
+                
                 const data = await response.json();
+                console.log('📨 Response status:', response.status);
+                console.log('📨 Response data:', data);
+                
                 if (response.ok) {
-                    alert('Account created successfully! Please sign in.');
-                    window.location.href = 'signin.html';
+                    // Show success modal
+                    const successModal = document.getElementById('successModal');
+                    successModal.classList.add('show');
+                    
+                    console.log('✓ Account created! Redirecting...');
+                    
+                    // Countdown timer
+                    let count = 3;
+                    const countdownEl = document.getElementById('countdown');
+                    const interval = setInterval(() => {
+                        count--;
+                        countdownEl.textContent = count;
+                        if (count <= 0) {
+                            clearInterval(interval);
+                            window.location.href = 'signin.html';
+                        }
+                    }, 1000);
                 } else {
-                    alert(data.message || 'Signup failed.');
+                    // Show error message
+                    feedbackDiv.style.display = 'block';
+                    feedbackDiv.style.background = '#fed7d7';
+                    feedbackDiv.style.color = '#742a2a';
+                    feedbackDiv.style.border = '2px solid #fc8181';
+                    feedbackDiv.innerHTML = '❌ <strong>Signup failed</strong><br>' + (data.message || 'Please try again.');
+                    
+                    console.log('❌ Signup failed:', data.message);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Create Account';
                 }
             } catch (error) {
-                alert('An error occurred. Please try again.');
+                console.error('❌ Network error:', error);
+                feedbackDiv.style.display = 'block';
+                feedbackDiv.style.background = '#fed7d7';
+                feedbackDiv.style.color = '#742a2a';
+                feedbackDiv.style.border = '2px solid #fc8181';
+                feedbackDiv.innerHTML = '❌ <strong>Connection Error</strong><br>Make sure the server is running at http://localhost:3000<br><small>' + error.message + '</small>';
+                
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Create Account';
             }
             return false;
         }

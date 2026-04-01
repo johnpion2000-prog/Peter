@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #007bff;
+        }
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        pre {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Login Test Page</h1>
+
+        <div class="section">
+            <h2>1. Test API Login</h2>
+            <button onclick="testLogin()">Test Login API</button>
+            <div id="loginResult"></div>
+        </div>
+
+        <div class="section">
+            <h2>2. Check localStorage</h2>
+            <button onclick="checkStorage()">Check localStorage</button>
+            <div id="storageResult"></div>
+        </div>
+
+        <div class="section">
+            <h2>3. Show Dashboard Data</h2>
+            <button onclick="showDashboardData()">Show Dashboard Data</button>
+            <div id="dashboardData"></div>
+        </div>
+
+        <div class="section">
+            <h2>4. Clear Storage</h2>
+            <button onclick="clearStorage()">Clear All localStorage</button>
+            <p id="clearResult"></p>
+        </div>
+    </div>
+
+    <script>
+        async function testLogin() {
+            const resultDiv = document.getElementById('loginResult');
+            resultDiv.innerHTML = '<p>Testing login...</p>';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'john@example.com',
+                        password: 'password123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✓ Login successful!</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">✗ Login failed: ${data.message}</p>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">✗ Error: ${error.message}</p>`;
+            }
+        }
+
+        function checkStorage() {
+            const resultDiv = document.getElementById('storageResult');
+            const currentUser = localStorage.getItem('currentUser');
+            const authToken = localStorage.getItem('authToken');
+            
+            resultDiv.innerHTML = `
+                <h3>localStorage Contents:</h3>
+                <p><strong>currentUser:</strong></p>
+                ${currentUser ? `<pre>${currentUser}</pre>` : '<p class="error">Not found</p>'}
+                <p><strong>authToken:</strong></p>
+                ${authToken ? `<pre>${authToken.substring(0, 50)}...</pre>` : '<p class="error">Not found</p>'}
+            `;
+        }
+
+        function showDashboardData() {
+            const resultDiv = document.getElementById('dashboardData');
+            try {
+                const userData = JSON.parse(localStorage.getItem('currentUser'));
+                if (userData) {
+                    const fullName = userData.fullName || userData.full_name || 'User';
+                    const displayName = userData.displayName || userData.display_name || fullName.split(' ')[0];
+                    
+                    resultDiv.innerHTML = `
+                        <p class="success">✓ Dashboard can read data:</p>
+                        <pre>${JSON.stringify({
+                            fullName,
+                            displayName,
+                            email: userData.email,
+                            role: userData.role
+                        }, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<p class="error">✗ No user data in localStorage</p>';
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<p class="error">✗ Error: ${err.message}</p>`;
+            }
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            document.getElementById('clearResult').innerHTML = '<p class="success">✓ All localStorage cleared</p>';
+        }
+
+        // Show initial storage status
+        window.onload = () => checkStorage();
+    </script>
+</body>
+</html>

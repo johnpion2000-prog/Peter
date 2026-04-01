@@ -15,7 +15,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ------------------- Security & Middleware -------------------
-app.use(helmet());
+// Disable CSP for development - enable inline scripts
+app.use(helmet({
+    contentSecurityPolicy: false
+}));
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -110,30 +113,44 @@ app.post('/api/auth/signup',
     ]),
     async (req, res) => {
         const { fullName, email, password, displayName } = req.body;
+        console.log('📝 Signup request:', { fullName, email });
 
         try {
             // Check if user exists
             dbHelpers.getUserByEmail(email, async (err, user) => {
-                if (err) return res.status(500).json({ error: 'Database error' });
-                if (user) return res.status(400).json({ error: 'Email already registered' });
+                if (err) {
+                    console.error('❌ Error checking user:', err.message);
+                    return res.status(500).json({ error: 'Database error: ' + err.message });
+                }
+                if (user) {
+                    console.log('⚠️ Email already registered:', email);
+                    return res.status(400).json({ error: 'Email already registered' });
+                }
 
                 const hashedPassword = await bcrypt.hash(password, 10);
                 dbHelpers.createUser(fullName, email, hashedPassword, displayName || fullName.split(' ')[0], (err) => {
-                    if (err) return res.status(500).json({ error: 'Database error' });
+                    if (err) {
+                        console.error('❌ Error creating user:', err.message);
+                        return res.status(500).json({ error: 'Database error: ' + err.message });
+                    }
 
                     // Get the created user
                     dbHelpers.getUserByEmail(email, (err, newUser) => {
-                        if (err) return res.status(500).json({ error: 'Database error' });
+                        if (err) {
+                            console.error('❌ Error retrieving created user:', err.message);
+                            return res.status(500).json({ error: 'Database error: ' + err.message });
+                        }
                         
                         const token = jwt.sign({ id: newUser.id, role: newUser.role }, process.env.JWT_SECRET || 'test-secret', { expiresIn: '7d' });
                         const { password_hash, ...userData } = newUser;
+                        console.log('✓ Signup successful for:', email);
                         res.status(201).json({ token, user: userData });
                     });
                 });
             });
         } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: 'Server error' });
+            console.error('❌ Signup error:', err);
+            res.status(500).json({ error: 'Server error: ' + err.message });
         }
     }
 );
@@ -145,25 +162,39 @@ app.post('/api/auth/login',
     ]),
     async (req, res) => {
         const { email, password } = req.body;
+        console.log('🔐 Login request:', { email });
+
         try {
             dbHelpers.getUserByEmail(email, async (err, user) => {
-                if (err) return res.status(500).json({ error: 'Database error' });
-                if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+                if (err) {
+                    console.error('❌ Error fetching user:', err.message);
+                    return res.status(500).json({ error: 'Database error: ' + err.message });
+                }
+                if (!user) {
+                    console.log('⚠️ User not found:', email);
+                    return res.status(401).json({ error: 'Invalid credentials' });
+                }
 
                 const valid = await bcrypt.compare(password, user.password_hash);
-                if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
+                if (!valid) {
+                    console.log('⚠️ Invalid password for:', email);
+                    return res.status(401).json({ error: 'Invalid credentials' });
+                }
 
                 // Log sign-in
                 const ip = req.ip || req.connection.remoteAddress;
-                dbHelpers.logSignIn(user.id, ip, () => {});
+                dbHelpers.logSignIn(user.id, ip, (err) => {
+                    if (err) console.error('❌ Error logging sign-in:', err.message);
+                });
 
                 const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET || 'test-secret', { expiresIn: '7d' });
                 const { password_hash, ...userData } = user;
+                console.log('✓ Login successful for:', email);
                 res.json({ token, user: userData });
             });
         } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: 'Server error' });
+            console.error('❌ Login error:', err.message);
+            res.status(500).json({ error: 'Server error: ' + err.message });
         }
     }
 );
