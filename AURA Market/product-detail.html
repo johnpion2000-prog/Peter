@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product – AURA Market</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>✨</text></svg>">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="logo">✨ AURA Market</a>
+    <div class="nav-search" style="max-width:300px">
+      <input type="text" id="search-input" placeholder="Search products…">
+      <button id="search-btn">🔍</button>
+    </div>
+    <div class="nav-actions">
+      <a href="signin.html" id="nav-login">👤 Sign In</a>
+      <a href="#" id="nav-user" style="display:none"></a>
+      <a href="admin.html" id="nav-admin" style="display:none">⚙️ Admin</a>
+      <a href="#" id="nav-logout" style="display:none">🚪 Logout</a>
+      <a href="cart.html">🛒 Cart <span class="cart-badge" id="cart-count">0</span></a>
+    </div>
+  </div>
+</nav>
+
+<div id="product-detail-root">
+  <div class="spinner" style="margin-top:80px"></div>
+</div>
+
+<!-- Related Products -->
+<div class="section" id="related-section" style="display:none">
+  <div class="section-header">
+    <h2 class="section-title">Related Products</h2>
+    <a href="products.html" class="btn btn-ghost btn-sm">See All</a>
+  </div>
+  <div class="products-grid" id="related-grid"></div>
+</div>
+
+<footer class="footer" style="margin-top:60px">
+  <div class="footer-bottom">&copy; 2026 AURA Market. All rights reserved.</div>
+</footer>
+
+<script type="module">
+  import { fetchProduct, fetchProducts, renderProducts } from './js/products.js';
+  import { addToCart, categoryEmoji, formatPrice } from './js/utils.js';
+  import { initNavAuth } from './js/auth.js';
+
+  initNavAuth();
+
+  const id = new URLSearchParams(location.search).get('id');
+  if (!id) { window.location.href = 'products.html'; }
+
+  let qty = 1;
+
+  async function load() {
+    const product = await fetchProduct(id);
+    if (!product) { window.location.href = 'products.html'; return; }
+
+    document.title = product.productName + ' – AURA Market';
+    const hasDiscount = product.discountPercent > 0;
+    const finalPrice = hasDiscount
+      ? (product.price - product.price * product.discountPercent / 100).toFixed(2)
+      : product.price.toFixed(2);
+
+    document.getElementById('product-detail-root').innerHTML = `
+      <div class="product-detail">
+        <div class="product-detail-img-wrapper">
+          ${product.imageURL
+            ? `<img src="${product.imageURL}" alt="${product.productName}">`
+            : `<span>${categoryEmoji(product.category)}</span>`}
+        </div>
+        <div class="product-detail-info">
+          <h1>${product.productName}</h1>
+          <span class="category-tag">${product.category}</span>
+          <div class="product-detail-pricing">
+            <span class="final">${formatPrice(finalPrice)}</span>
+            ${hasDiscount ? `<span class="original">${formatPrice(product.price)}</span>
+              <span class="discount-badge" style="position:static;margin-left:8px">-${product.discountPercent}%</span>` : ''}
+          </div>
+          <p class="product-description">${product.description || 'No description available.'}</p>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px">
+            Stock: <strong style="color:${product.stock > 0 ? 'var(--accent)' : 'var(--danger)'}">
+              ${product.stock > 0 ? product.stock + ' available' : 'Out of stock'}
+            </strong>
+          </p>
+          <div class="quantity-selector" ${product.stock <= 0 ? 'style="opacity:0.4;pointer-events:none"' : ''}>
+            <button id="qty-minus">−</button>
+            <span id="qty-display">1</span>
+            <button id="qty-plus">+</button>
+            <span style="font-size:13px;color:var(--text-muted)">units</span>
+          </div>
+          <div class="detail-actions">
+            <button class="btn btn-primary" id="add-cart-btn" ${product.stock <= 0 ? 'disabled' : ''}>
+              🛒 Add to Cart
+            </button>
+            <button class="btn btn-secondary" id="buy-now-btn" ${product.stock <= 0 ? 'disabled' : ''}>
+              ⚡ Buy Now
+            </button>
+          </div>
+        </div>
+      </div>`;
+
+    document.getElementById('qty-minus').addEventListener('click', () => {
+      if (qty > 1) { qty--; document.getElementById('qty-display').textContent = qty; }
+    });
+    document.getElementById('qty-plus').addEventListener('click', () => {
+      if (qty < product.stock) { qty++; document.getElementById('qty-display').textContent = qty; }
+    });
+
+    document.getElementById('add-cart-btn').addEventListener('click', () => {
+      for (let i = 0; i < qty; i++) {
+        addToCart({ id: product.id, ...product, discountedPrice: finalPrice });
+      }
+    });
+
+    document.getElementById('buy-now-btn').addEventListener('click', () => {
+      for (let i = 0; i < qty; i++) {
+        addToCart({ id: product.id, ...product, discountedPrice: finalPrice });
+      }
+      window.location.href = 'cart.html';
+    });
+
+    // Related products
+    const related = await fetchProducts({ category: product.category });
+    const others = related.filter(p => p.id !== id).slice(0, 4);
+    if (others.length > 0) {
+      renderProducts(others, document.getElementById('related-grid'));
+      document.getElementById('related-section').style.display = 'block';
+    }
+  }
+
+  load();
+
+  document.getElementById('search-btn').addEventListener('click', () => {
+    const q = document.getElementById('search-input').value.trim();
+    if (q) window.location.href = `products.html?search=${encodeURIComponent(q)}`;
+  });
+</script>
+</body>
+</html>

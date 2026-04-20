@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout – AURA Market</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>✨</text></svg>">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="logo">✨ AURA Market</a>
+    <div class="nav-actions">
+      <a href="signin.html" id="nav-login">👤 Sign In</a>
+      <a href="#" id="nav-user" style="display:none"></a>
+      <a href="#" id="nav-logout" style="display:none">🚪 Logout</a>
+      <a href="cart.html">🛒 Cart <span class="cart-badge" id="cart-count">0</span></a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>Checkout</h1>
+  <p>Complete your order</p>
+</div>
+
+<div class="checkout-layout">
+  <!-- Form -->
+  <div class="checkout-form-card">
+    <h3 style="font-size:16px;font-weight:800;margin-bottom:24px">Shipping Information</h3>
+    <form id="checkout-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="full-name" placeholder="John Doe" required>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="phone" placeholder="+1 234 567 890" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="email" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label>Street Address</label>
+        <input type="text" id="address" placeholder="123 Pet Street" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>City</label>
+          <input type="text" id="city" placeholder="New York" required>
+        </div>
+        <div class="form-group">
+          <label>ZIP Code</label>
+          <input type="text" id="zip" placeholder="10001" required>
+        </div>
+      </div>
+
+      <hr style="margin:28px 0;border-color:var(--border)">
+      <h3 style="font-size:16px;font-weight:800;margin-bottom:20px">Payment Method</h3>
+
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px">
+        <label style="display:flex;align-items:center;gap:10px;padding:14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer">
+          <input type="radio" name="payment" value="mock" checked> 💳 Mock Payment (Test Mode)
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;opacity:0.5">
+          <input type="radio" name="payment" value="stripe" disabled> Stripe (Coming soon)
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;padding:14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;opacity:0.5">
+          <input type="radio" name="payment" value="paypal" disabled> PayPal (Coming soon)
+        </label>
+      </div>
+
+      <div id="alert-box"></div>
+      <button type="submit" class="btn btn-primary btn-full" id="place-order-btn">
+        🛍️ Place Order
+      </button>
+    </form>
+  </div>
+
+  <!-- Order Summary -->
+  <div class="cart-summary">
+    <h3>Order Summary</h3>
+    <div id="order-summary-items" style="margin-bottom:16px"></div>
+    <div class="summary-row"><span>Subtotal</span><span id="cs-subtotal">RWF 0</span></div>
+    <div class="summary-row total"><span>Total</span><span id="cs-total">RWF 0</span></div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div id="success-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:20px;padding:48px;text-align:center;max-width:400px;width:90%">
+    <div style="font-size:5rem;margin-bottom:16px">🎉</div>
+    <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:8px">Order Placed!</h2>
+    <p style="color:var(--text-muted);margin-bottom:8px">Your order <strong id="order-id-display"></strong> has been placed successfully.</p>
+    <p style="color:var(--text-muted);font-size:14px;margin-bottom:32px">We'll notify you when it ships.</p>
+    <a href="index.html" class="btn btn-primary btn-full">Continue Shopping</a>
+  </div>
+</div>
+
+<footer class="footer" style="margin-top:60px">
+  <div class="footer-bottom">&copy; 2026 AURA Market. All rights reserved.</div>
+</footer>
+
+<script type="module">
+  import { placeOrder, requireAuth } from './js/checkout.js';
+  import { getCart, formatPrice } from './js/utils.js';
+  import { initNavAuth } from './js/auth.js';
+  import { auth } from './js/firebase-config.js';
+  import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { db } from './js/firebase-config.js';
+
+  initNavAuth();
+
+  const cart = getCart();
+  const total = parseFloat(localStorage.getItem('pfm_cart_total') || '0') ||
+    cart.reduce((s,i) => s + (i.discountedPrice || i.price) * i.qty, 0);
+
+  // Render summary
+  const summaryEl = document.getElementById('order-summary-items');
+  summaryEl.innerHTML = cart.map(i => `
+    <div class="summary-row" style="font-size:13px">
+      <span>${i.productName} ×${i.qty}</span>
+      <span>${formatPrice((i.discountedPrice || i.price) * i.qty)}</span>
+    </div>`).join('');
+  document.getElementById('cs-subtotal').textContent = formatPrice(total);
+  document.getElementById('cs-total').textContent = formatPrice(total);
+
+  if (cart.length === 0) window.location.href = 'cart.html';
+
+  // Pre-fill user data
+  requireAuth().then(async (user) => {
+    document.getElementById('email').value = user.email || '';
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid));
+      if (snap.exists()) {
+        const d = snap.data();
+        document.getElementById('full-name').value = d.name || '';
+        document.getElementById('address').value = d.address || '';
+      }
+    } catch(_) {}
+  });
+
+  function showAlert(msg, type='error') {
+    document.getElementById('alert-box').innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
+  }
+
+  document.getElementById('checkout-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('place-order-btn');
+    btn.textContent = 'Placing order…'; btn.disabled = true;
+
+    const fullAddress = [
+      document.getElementById('address').value,
+      document.getElementById('city').value,
+      document.getElementById('zip').value
+    ].filter(Boolean).join(', ');
+
+    try {
+      const orderId = await placeOrder({
+        name: document.getElementById('full-name').value.trim(),
+        address: fullAddress,
+        phone: document.getElementById('phone').value.trim()
+      });
+      document.getElementById('order-id-display').textContent = '#' + orderId.slice(-8).toUpperCase();
+      const modal = document.getElementById('success-modal');
+      modal.style.display = 'flex';
+    } catch(err) {
+      showAlert('Failed to place order. Please try again.');
+      btn.textContent = '🛍️ Place Order'; btn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

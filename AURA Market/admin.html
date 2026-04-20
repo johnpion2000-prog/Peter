@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel – AURA Market</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>✨</text></svg>">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="logo">✨ AURA Market</a>
+    <div class="nav-actions">
+      <a href="index.html">🏠 Storefront</a>
+      <a href="#" id="nav-logout">🚪 Logout</a>
+    </div>
+  </div>
+</nav>
+
+<div class="admin-layout">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <h3>Admin Panel</h3>
+    <a href="#" class="active" data-section="dashboard">📊 Dashboard</a>
+    <a href="#" data-section="add-product">➕ Add Product</a>
+    <a href="#" data-section="manage-products">📦 Manage Products</a>
+    <a href="#" data-section="orders">🧾 Orders</a>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+
+    <!-- Dashboard -->
+    <div id="section-dashboard">
+      <h2 class="admin-page-title">Dashboard</h2>
+      <div class="stats-grid">
+        <div class="stat-card"><h4>Total Products</h4><div class="stat-value" id="stat-products">…</div></div>
+        <div class="stat-card" style="border-color:#22c55e"><h4>Total Orders</h4><div class="stat-value" id="stat-orders">…</div></div>
+        <div class="stat-card" style="border-color:#7c3aed"><h4>Total Users</h4><div class="stat-value" id="stat-users">…</div></div>
+        <div class="stat-card" style="border-color:#f59e0b"><h4>Revenue</h4><div class="stat-value" id="stat-revenue">…</div></div>
+      </div>
+    </div>
+
+    <!-- Add Product -->
+    <div id="section-add-product" style="display:none">
+      <h2 class="admin-page-title">Add New Product</h2>
+      <div class="checkout-form-card" style="max-width:600px">
+        <form id="add-product-form">
+          <div class="form-group">
+            <label>Product Name</label>
+            <input type="text" id="p-name" placeholder="e.g. Premium Dog Kibble" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Category</label>
+              <select id="p-cat" required>
+                <option value="">Select…</option>
+                <option value="dog">🐕 Dog</option>
+                <option value="cat">🐈 Cat</option>
+                <option value="bird">🐦 Bird</option>
+                <option value="rabbit">🐇 Rabbit</option>
+                <option value="other">🐾 Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Stock Quantity</label>
+              <input type="number" id="p-stock" placeholder="50" min="0" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Price ($)</label>
+              <input type="number" id="p-price" placeholder="29.99" min="0" step="0.01" required>
+            </div>
+            <div class="form-group">
+              <label>Discount % (0 = none)</label>
+              <input type="number" id="p-discount" placeholder="10" min="0" max="99" value="0">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="p-desc" rows="3" placeholder="Product description…"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Product Image</label>
+            <div class="upload-zone" id="upload-zone">
+              <div class="upload-icon">🖼️</div>
+              <p>Click to upload image or drag & drop</p>
+              <input type="file" id="p-image" accept="image/*">
+            </div>
+            <div class="upload-preview" id="upload-preview">
+              <img id="upload-preview-img" src="" alt="Preview">
+            </div>
+          </div>
+          <div id="upload-progress" style="display:none;margin-bottom:16px">
+            <div style="background:var(--border);border-radius:20px;height:6px;overflow:hidden">
+              <div id="upload-bar" style="height:100%;background:var(--primary);width:0%;transition:width 0.2s"></div>
+            </div>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:4px">Uploading… <span id="upload-pct">0</span>%</p>
+          </div>
+          <div id="form-alert"></div>
+          <button type="submit" class="btn btn-primary btn-full" id="add-product-btn">Add Product</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Manage Products -->
+    <div id="section-manage-products" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+        <h2 class="admin-page-title" style="margin:0">Manage Products</h2>
+        <button class="btn btn-primary btn-sm" onclick="document.querySelector('[data-section=add-product]').click()">+ Add New</button>
+      </div>
+      <div class="data-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Discount</th>
+              <th>Stock</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="products-table-body">
+            <tr><td colspan="7" style="text-align:center;padding:40px"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Orders -->
+    <div id="section-orders" style="display:none">
+      <h2 class="admin-page-title">Orders</h2>
+      <div class="data-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Total</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Update</th>
+            </tr>
+          </thead>
+          <tbody id="orders-table-body">
+            <tr><td colspan="6" style="text-align:center;padding:40px"><div class="spinner"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Edit Product Modal -->
+<div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;align-items:center;justify-content:center;overflow:auto">
+  <div style="background:#fff;border-radius:16px;padding:32px;max-width:560px;width:90%;margin:40px auto">
+    <h3 style="font-size:18px;font-weight:800;margin-bottom:24px">Edit Product</h3>
+    <form id="edit-product-form">
+      <input type="hidden" id="edit-id">
+      <input type="hidden" id="edit-imageURL">
+      <div class="form-group"><label>Product Name</label><input type="text" id="edit-name" required></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="edit-cat" required>
+            <option value="dog">🐕 Dog</option>
+            <option value="cat">🐈 Cat</option>
+            <option value="bird">🐦 Bird</option>
+            <option value="rabbit">🐇 Rabbit</option>
+            <option value="other">🐾 Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Stock</label><input type="number" id="edit-stock" min="0"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Price ($)</label><input type="number" id="edit-price" min="0" step="0.01"></div>
+        <div class="form-group"><label>Discount %</label><input type="number" id="edit-discount" min="0" max="99"></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea id="edit-desc" rows="3"></textarea></div>
+      <div class="form-group">
+        <label>New Image (optional)</label>
+        <input type="file" id="edit-image" accept="image/*" style="border:1.5px solid var(--border);padding:8px;border-radius:8px;width:100%">
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px">
+        <button type="submit" class="btn btn-primary" style="flex:1">Save Changes</button>
+        <button type="button" class="btn btn-ghost" style="flex:1" onclick="document.getElementById('edit-modal').style.display='none'">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script type="module">
+  import { requireAdmin } from './js/checkout.js';
+  import { logout } from './js/auth.js';
+  import { fetchAdminStats, fetchAllOrders, addProduct, updateProduct, deleteProduct } from './js/admin.js';
+  import { formatPrice, categoryEmoji } from './js/utils.js';
+  import { db } from './js/firebase-config.js';
+  import { getDocs, collection, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  document.getElementById('nav-logout').addEventListener('click', e => { e.preventDefault(); logout(); });
+
+  await requireAdmin();
+
+  // ===== Section navigation =====
+  const sections = ['dashboard','add-product','manage-products','orders'];
+  document.querySelectorAll('[data-section]').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const s = link.dataset.section;
+      document.querySelectorAll('[data-section]').forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      sections.forEach(sec => {
+        document.getElementById('section-' + sec).style.display = sec === s ? 'block' : 'none';
+      });
+      if (s === 'dashboard') loadStats();
+      if (s === 'manage-products') loadProductsTable();
+      if (s === 'orders') loadOrders();
+    });
+  });
+
+  // ===== Stats =====
+  async function loadStats() {
+    const stats = await fetchAdminStats();
+    document.getElementById('stat-products').textContent = stats.products;
+    document.getElementById('stat-orders').textContent = stats.orders;
+    document.getElementById('stat-users').textContent = stats.users;
+    document.getElementById('stat-revenue').textContent = '$' + stats.revenue;
+  }
+
+  loadStats();
+
+  // ===== Upload zone =====
+  const uploadZone = document.getElementById('upload-zone');
+  const fileInput = document.getElementById('p-image');
+  uploadZone.addEventListener('click', () => fileInput.click());
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault(); uploadZone.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) showPreview(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) showPreview(fileInput.files[0]); });
+  function showPreview(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('upload-preview-img').src = e.target.result;
+      document.getElementById('upload-preview').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ===== Add Product =====
+  document.getElementById('add-product-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('add-product-btn');
+    btn.textContent = 'Saving…'; btn.disabled = true;
+    const alertEl = document.getElementById('form-alert');
+    alertEl.innerHTML = '';
+    try {
+      const file = fileInput.files[0] || null;
+      if (file) {
+        document.getElementById('upload-progress').style.display = 'block';
+      }
+      await addProduct({
+        productName: document.getElementById('p-name').value.trim(),
+        category: document.getElementById('p-cat').value,
+        price: document.getElementById('p-price').value,
+        discountPercent: document.getElementById('p-discount').value || 0,
+        description: document.getElementById('p-desc').value.trim(),
+        stock: document.getElementById('p-stock').value
+      }, file, (pct) => {
+        document.getElementById('upload-bar').style.width = pct + '%';
+        document.getElementById('upload-pct').textContent = pct;
+      });
+      document.getElementById('add-product-form').reset();
+      document.getElementById('upload-preview').style.display = 'none';
+      document.getElementById('upload-progress').style.display = 'none';
+    } catch(err) {
+      alertEl.innerHTML = `<div class="alert alert-error">${err.message}</div>`;
+    }
+    btn.textContent = 'Add Product'; btn.disabled = false;
+  });
+
+  // ===== Products Table =====
+  async function loadProductsTable() {
+    const tbody = document.getElementById('products-table-body');
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px"><div class="spinner"></div></td></tr>';
+    const snap = await getDocs(query(collection(db, 'products'), orderBy('createdAt', 'desc')));
+    if (snap.empty) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">No products yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = snap.docs.map(d => {
+      const p = d.data();
+      return `<tr>
+        <td>${p.imageURL ? `<img src="${p.imageURL}" style="width:48px;height:48px;object-fit:cover;border-radius:6px">` : categoryEmoji(p.category)}</td>
+        <td><strong>${p.productName}</strong></td>
+        <td style="text-transform:capitalize">${p.category}</td>
+        <td>${formatPrice(p.price)}</td>
+        <td>${p.discountPercent > 0 ? `<span class="discount-badge" style="position:static">${p.discountPercent}%</span>` : '—'}</td>
+        <td>${p.stock}</td>
+        <td style="display:flex;gap:8px;padding:14px 16px">
+          <button class="btn btn-ghost btn-sm" onclick="window._editProduct('${d.id}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="window._deleteProduct('${d.id}','${p.productName}')">Delete</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ===== Delete product =====
+  window._deleteProduct = async (id, name) => {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    await deleteProduct(id);
+    loadProductsTable();
+  };
+
+  // ===== Edit product =====
+  window._editProduct = async (id) => {
+    const { fetchProduct } = await import('./js/products.js');
+    const p = await fetchProduct(id);
+    if (!p) return;
+    document.getElementById('edit-id').value = id;
+    document.getElementById('edit-imageURL').value = p.imageURL || '';
+    document.getElementById('edit-name').value = p.productName;
+    document.getElementById('edit-cat').value = p.category;
+    document.getElementById('edit-stock').value = p.stock;
+    document.getElementById('edit-price').value = p.price;
+    document.getElementById('edit-discount').value = p.discountPercent || 0;
+    document.getElementById('edit-desc').value = p.description || '';
+    document.getElementById('edit-modal').style.display = 'flex';
+  };
+
+  document.getElementById('edit-product-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const id = document.getElementById('edit-id').value;
+    const file = document.getElementById('edit-image').files[0] || null;
+    await updateProduct(id, {
+      productName: document.getElementById('edit-name').value.trim(),
+      category: document.getElementById('edit-cat').value,
+      price: document.getElementById('edit-price').value,
+      discountPercent: document.getElementById('edit-discount').value || 0,
+      description: document.getElementById('edit-desc').value.trim(),
+      stock: document.getElementById('edit-stock').value,
+      imageURL: document.getElementById('edit-imageURL').value
+    }, file);
+    document.getElementById('edit-modal').style.display = 'none';
+    loadProductsTable();
+  });
+
+  // ===== Orders =====
+  async function loadOrders() {
+    const orders = await fetchAllOrders();
+    const tbody = document.getElementById('orders-table-body');
+    if (orders.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">No orders yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = orders.map(o => {
+      const date = o.orderDate ? new Date(o.orderDate.seconds * 1000).toLocaleDateString() : '—';
+      return `<tr>
+        <td style="font-family:monospace;font-size:12px">#${o.id.slice(-8).toUpperCase()}</td>
+        <td>${o.userName || '—'}<br><span style="font-size:12px;color:var(--text-muted)">${o.userAddress || ''}</span></td>
+        <td><strong>${formatPrice(o.totalAmount)}</strong></td>
+        <td>${date}</td>
+        <td><span class="status-badge status-${o.status}">${o.status}</span></td>
+        <td>
+          <select onchange="window._updateStatus('${o.id}', this.value)" style="border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:13px">
+            <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
+            <option value="paid" ${o.status==='paid'?'selected':''}>Paid</option>
+            <option value="shipped" ${o.status==='shipped'?'selected':''}>Shipped</option>
+            <option value="delivered" ${o.status==='delivered'?'selected':''}>Delivered</option>
+          </select>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  window._updateStatus = async (orderId, status) => {
+    const { updateOrderStatus } = await import('./js/admin.js');
+    await updateOrderStatus(orderId, status);
+    loadOrders();
+  };
+</script>
+</body>
+</html>

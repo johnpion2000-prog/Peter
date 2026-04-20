@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "petfoodmarket-b323a"
+  },
+  "targets": {
+    "petfoodmarket-b323a": {
+      "hosting": {
+        "aura": [
+          "auramarket"
+        ]
+      }
+    }
+  }
+}

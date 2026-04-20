@@ -1,0 +1,90 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ────────────────────────────────────────────────
+    function isSignedIn()   { return request.auth != null; }
+    function userDoc()      { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function role()         { return isSignedIn() && userDoc() != null ? userDoc().role : 'guest'; }
+    function isSuperAdmin() { return role() == 'superAdmin'; }
+    function isAdminOrCompanyAdmin() { return isSuperAdmin() || role() == 'companyAdmin'; }
+
+    // ── Users ──────────────────────────────────────────────────
+    match /users/{uid} {
+      allow read:   if isSignedIn() && (request.auth.uid == uid || isSuperAdmin());
+      allow create: if isSignedIn() && request.auth.uid == uid;
+      allow update: if isSignedIn() && (
+        (request.auth.uid == uid
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role','companyId']))
+        || isSuperAdmin()
+      );
+      allow delete: if isSuperAdmin();
+    }
+
+    // ── Products ───────────────────────────────────────────────
+    match /products/{productId} {
+      allow read: if true;
+      allow create: if isAdminOrCompanyAdmin()
+        && (isSuperAdmin()
+            || (userDoc().companyId != null
+                && get(/databases/$(database)/documents/companies/$(userDoc().companyId)).data.status == 'active'
+                && get(/databases/$(database)/documents/companies/$(userDoc().companyId)).data.permissions.canAddProducts == true));
+      allow update: if isSuperAdmin()
+        || (role() == 'companyAdmin' && resource.data.companyId == userDoc().companyId);
+      allow delete: if isSuperAdmin()
+        || (role() == 'companyAdmin' && resource.data.companyId == userDoc().companyId);
+    }
+
+    // ── Orders ─────────────────────────────────────────────────
+    match /orders/{orderId} {
+      // Customer sees own orders; superAdmin sees all;
+      // companyAdmin sees only orders that contain at least one of their products
+      allow read: if isSignedIn()
+        && (
+          resource.data.userId == request.auth.uid
+          || isSuperAdmin()
+          || (role() == 'companyAdmin'
+              && userDoc().companyId != null
+              && (
+                ('companyIds' in resource.data
+                 && resource.data.companyIds.hasAny([userDoc().companyId]))
+                || resource.data.companyId == userDoc().companyId
+              ))
+        );
+      allow create: if isSignedIn();
+      allow update: if isSuperAdmin()
+        || (role() == 'companyAdmin'
+            && userDoc().companyId != null
+            && (
+              ('companyIds' in resource.data
+               && resource.data.companyIds.hasAny([userDoc().companyId]))
+              || resource.data.companyId == userDoc().companyId
+            )
+            && get(/databases/$(database)/documents/companies/$(userDoc().companyId)).data.permissions.canManageOrders == true);
+      allow delete: if isSuperAdmin();
+    }
+
+    // ── Companies ──────────────────────────────────────────────
+    match /companies/{companyId} {
+      allow read:  if isSignedIn();
+      // Vendor self-application: authenticated user may create their own pending company
+      allow create: if isSignedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.status  == 'pending';
+      // Only superAdmin can update or delete company documents
+      allow update, delete: if isSuperAdmin();
+    }
+
+    // ── Discounts ──────────────────────────────────────────────
+    match /discounts/{code} {
+      allow read:  if true;
+      allow write: if isSuperAdmin();
+    }
+
+    // ── Categories ─────────────────────────────────────────────
+    match /categories/{catId} {
+      allow read:  if true;
+      allow write: if isSuperAdmin();
+    }
+  }
+}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart – AURA Market</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>✨</text></svg>">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="logo">✨ AURA Market</a>
+    <div class="nav-actions">
+      <a href="signin.html" id="nav-login">👤 Sign In</a>
+      <a href="#" id="nav-user" style="display:none"></a>
+      <a href="admin.html" id="nav-admin" style="display:none">⚙️ Admin</a>
+      <a href="#" id="nav-logout" style="display:none">🚪 Logout</a>
+      <a href="cart.html">🛒 Cart <span class="cart-badge" id="cart-count">0</span></a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1>🛒 Shopping Cart</h1>
+</div>
+
+<div class="cart-layout">
+  <!-- Items -->
+  <div>
+    <div id="cart-items"></div>
+    <div style="margin-top:20px">
+      <a href="products.html" class="btn btn-ghost btn-sm">← Continue Shopping</a>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="cart-summary">
+    <h3>Order Summary</h3>
+    <div class="promo-input">
+      <input type="text" id="promo-code" placeholder="Promo code…">
+      <button class="btn btn-secondary btn-sm" id="apply-promo-btn">Apply</button>
+    </div>
+    <div class="summary-row"><span>Subtotal</span><span id="summary-subtotal">RWF 0</span></div>
+    <div class="summary-row"><span>Promo Discount</span><span id="summary-discount">-RWF 0</span></div>
+    <div class="summary-row total"><span>Total</span><span id="summary-total">RWF 0</span></div>
+    <a href="checkout.html" class="btn btn-primary btn-full" style="margin-top:20px" id="checkout-btn">
+      Proceed to Checkout →
+    </a>
+    <p style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:12px">
+      🔒 Secure checkout
+    </p>
+  </div>
+</div>
+
+<footer class="footer" style="margin-top:60px">
+  <div class="footer-bottom">&copy; 2026 AURA Market. All rights reserved.</div>
+</footer>
+
+<script type="module">
+  import { renderCart, applyPromo } from './js/cart.js';
+  import { initNavAuth } from './js/auth.js';
+
+  initNavAuth();
+  renderCart();
+
+  document.getElementById('apply-promo-btn').addEventListener('click', async () => {
+    const code = document.getElementById('promo-code').value.trim();
+    if (!code) return;
+    await applyPromo(code);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products – AURA Market</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><text y='32' font-size='32'>✨</text></svg>">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="logo">✨ AURA Market</a>
+    <div class="nav-search">
+      <input type="text" id="search-input" placeholder="Search products…">
+      <button id="search-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
+    </div>
+    <div class="nav-actions">
+      <a href="signin.html" id="nav-login"><span style="display:inline-flex;align-items:center;gap:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg> Sign In</span></a>
+      <a href="#" id="nav-user" style="display:none"></a>
+      <a href="admin.html" id="nav-admin" style="display:none"><span style="display:inline-flex;align-items:center;gap:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Admin</span></a>
+      <a href="#" id="nav-logout" style="display:none"><span style="display:inline-flex;align-items:center;gap:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Logout</span></a>
+      <a href="cart.html"><span style="display:inline-flex;align-items:center;gap:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg> Cart</span> <span class="cart-badge" id="cart-count">0</span></a>
+    </div>
+  </div>
+  <div class="nav-categories">
+    <div class="nav-categories-inner">
+      <a href="products.html" id="cat-all">All</a>
+      <a href="products.html?cat=fashion" id="cat-fashion"><span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg></span> Fashion</a>
+      <a href="products.html?cat=shoes" id="cat-shoes"><span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/><path d="M16 17h4"/><path d="M4 13h4"/></svg></span> Footwear</a>
+      <a href="products.html?cat=automotive" id="cat-automotive"><span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17H5c-.7 0-1.4-.3-1.8-.8L2 14l2.5-5A2 2 0 0 1 6.3 8H17.7a2 2 0 0 1 1.8 1.1L22 14l-1.2 2.2c-.4.5-1.1.8-1.8.8Z"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg></span> Automotive</a>
+      <a href="products.html?cat=electronics" id="cat-electronics"><span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></svg></span> Electronics</a>
+      <a href="products.html?cat=home" id="cat-home"><span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span> Home</a>
+      <a href="products.html?cat=sports" id="cat-sports"><span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg></span> Sports</a>
+      <a href="products.html?cat=beauty" id="cat-beauty"><span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg></span> Beauty</a>
+      <a href="products.html?cat=food" id="cat-food"><span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></span> Food</a>
+      <a href="products.html?cat=other" id="cat-other"><span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span> Other</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <h1 id="page-title">All Products</h1>
+  <p>Browse our full range of products from all categories</p>
+</div>
+
+<div class="products-layout">
+  <!-- Filters -->
+  <aside class="filters-panel">
+    <h3 style="font-size:16px;font-weight:800;margin-bottom:20px">Filters</h3>
+    <div class="filter-group">
+      <h4>Category</h4>
+      <label><input type="radio" name="cat" value=""> All Categories</label>
+      <label><input type="radio" name="cat" value="fashion"> <span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/></svg></span> Fashion</label>
+      <label><input type="radio" name="cat" value="shoes"> <span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/><path d="M16 17h4"/><path d="M4 13h4"/></svg></span> Footwear</label>
+      <label><input type="radio" name="cat" value="automotive"> <span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17H5c-.7 0-1.4-.3-1.8-.8L2 14l2.5-5A2 2 0 0 1 6.3 8H17.7a2 2 0 0 1 1.8 1.1L22 14l-1.2 2.2c-.4.5-1.1.8-1.8.8Z"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg></span> Automotive</label>
+      <label><input type="radio" name="cat" value="electronics"> <span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></svg></span> Electronics</label>
+      <label><input type="radio" name="cat" value="home"> <span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span> Home</label>
+      <label><input type="radio" name="cat" value="sports"> <span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg></span> Sports</label>
+      <label><input type="radio" name="cat" value="beauty"> <span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg></span> Beauty</label>
+      <label><input type="radio" name="cat" value="food"> <span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></span> Food</label>
+      <label><input type="radio" name="cat" value="other"> <span style="display:inline-flex;align-items:center;margin-right:4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span> Other</label>
+    </div>
+    <div class="filter-group">
+      <h4>Price Range</h4>
+      <input type="range" id="price-range" min="0" max="500000" value="500000" step="5000">
+      <div class="price-range-labels"><span>RWF 0</span><span id="price-label">RWF 500,000</span></div>
+    </div>
+    <div class="filter-group">
+      <h4>Discount</h4>
+      <label><input type="checkbox" id="only-discount"> On Sale Only</label>
+    </div>
+    <button class="btn btn-primary btn-full btn-sm" id="apply-filters">Apply Filters</button>
+    <button class="btn btn-ghost btn-full btn-sm" style="margin-top:8px" id="reset-filters">Reset</button>
+  </aside>
+
+  <!-- Products -->
+  <div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+      <p id="results-count" style="font-size:14px;color:var(--text-muted)">Loading…</p>
+    </div>
+    <div class="products-grid" id="products-grid">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer" style="margin-top:60px">
+  <div class="footer-bottom">&copy; 2026 AURA Market. All rights reserved.</div>
+</footer>
+
+<script type="module">
+  import { fetchProducts, searchProducts, renderProducts } from './js/products.js';
+  import { initNavAuth } from './js/auth.js';
+
+  initNavAuth();
+
+  const params = new URLSearchParams(location.search);
+  const initCat = params.get('cat') || '';
+  const initSearch = params.get('search') || '';
+  const initDiscount = params.get('discount') === '1';
+
+  // Set active nav category
+  if (initCat) {
+    const el = document.getElementById('cat-' + initCat);
+    if (el) el.classList.add('active');
+  } else {
+    document.getElementById('cat-all').classList.add('active');
+  }
+
+  // Pre-fill filters
+  if (initCat) {
+    const radio = document.querySelector(`input[name="cat"][value="${initCat}"]`);
+    if (radio) radio.checked = true;
+  } else {
+    document.querySelector(`input[name="cat"][value=""]`).checked = true;
+  }
+  if (initDiscount) document.getElementById('only-discount').checked = true;
+
+  const pageTitle = document.getElementById('page-title');
+  if (initSearch) pageTitle.textContent = `Search: "${initSearch}"`;
+  else if (initCat) pageTitle.textContent = initCat.charAt(0).toUpperCase() + initCat.slice(1) + ' Food';
+
+  // Price label
+  const priceRange = document.getElementById('price-range');
+  const priceLabel = document.getElementById('price-label');
+  priceRange.addEventListener('input', () => { priceLabel.textContent = 'RWF\u00a0' + parseInt(priceRange.value).toLocaleString('en-US'); });
+
+  async function loadProducts() {
+    const grid = document.getElementById('products-grid');
+    const count = document.getElementById('results-count');
+    grid.innerHTML = '<div class="spinner"></div>';
+
+    let products;
+    if (initSearch) {
+      products = await searchProducts(initSearch);
+    } else {
+      const cat = document.querySelector('input[name="cat"]:checked')?.value || '';
+      const max = parseInt(priceRange.value);
+      const onlyDiscount = document.getElementById('only-discount').checked;
+      products = await fetchProducts({ category: cat, maxPrice: max, onlyDiscount });
+    }
+
+    count.textContent = `${products.length} product${products.length !== 1 ? 's' : ''} found`;
+    renderProducts(products, grid);
+  }
+
+  loadProducts();
+
+  document.getElementById('apply-filters').addEventListener('click', loadProducts);
+
+  document.getElementById('reset-filters').addEventListener('click', () => {
+    document.querySelector('input[name="cat"][value=""]').checked = true;
+    priceRange.value = 500000; priceLabel.textContent = 'RWF\u00a0500,000';
+    document.getElementById('only-discount').checked = false;
+    loadProducts();
+  });
+
+  document.getElementById('search-btn').addEventListener('click', () => {
+    const q = document.getElementById('search-input').value.trim();
+    if (q) window.location.href = `products.html?search=${encodeURIComponent(q)}`;
+  });
+
+  document.getElementById('search-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('search-btn').click();
+  });
+</script>
+</body>
+</html>
