@@ -9,10 +9,15 @@ import type { Product, ProductFormData } from '../types/product.types';
 
 export async function fetchProducts(companyId?: string): Promise<Product[]> {
   const q = companyId
-    ? query(productsCol, where('companyId', '==', companyId), orderBy('createdAt', 'desc'))
+    ? query(productsCol, where('companyId', '==', companyId))
     : query(productsCol, orderBy('createdAt', 'desc'));
   const snap = await getDocs(q);
-  return snap.docs.map(d => ({ ...d.data(), id: d.id } as Product));
+  const products = snap.docs.map(d => ({ ...d.data(), id: d.id } as Product));
+  // Sort client-side when filtering by companyId to avoid needing a composite index
+  if (companyId) {
+    products.sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+  }
+  return products;
 }
 
 export async function fetchFeaturedProducts(count = 8): Promise<Product[]> {

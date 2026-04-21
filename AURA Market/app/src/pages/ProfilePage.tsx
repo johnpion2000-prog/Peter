@@ -6,14 +6,16 @@ import { z } from 'zod';
 import { useAuthContext } from '../context/AuthContext';
 import { useLang } from '../context/LanguageContext';
 import { fetchOrders } from '../services/orderService';
+import { getCompany } from '../services/companyService';
 import { uploadImage } from '../firebase/storage';
 import { ORDER_STATUS_COLORS } from '../config/constants';
 import { formatCurrency } from '../utils/formatCurrency';
 import type { Order } from '../types/order.types';
+import type { Company } from '../types/company.types';
 import Spinner from '../components/ui/Spinner';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import { CameraIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { CameraIcon, ChevronDownIcon, ChevronUpIcon, LinkIcon, BuildingStorefrontIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
 const schema = z.object({
@@ -33,6 +35,7 @@ export default function ProfilePage() {
   const [saving, setSaving]           = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [expandedOrder, setExpandedOrder]   = useState<string | null>(null);
+  const [company, setCompany]         = useState<Company | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
@@ -57,6 +60,13 @@ export default function ProfilePage() {
       .catch(() => setOrders([]))
       .finally(() => setOrdersLoading(false));
   }, [currentUser]);
+
+  // Load company for companyAdmin users
+  useEffect(() => {
+    if (appUser?.role === 'companyAdmin' && appUser.companyId) {
+      getCompany(appUser.companyId).then(setCompany);
+    }
+  }, [appUser]);
 
   async function onSubmit(data: FormValues) {
     setSaving(true);
@@ -103,6 +113,47 @@ export default function ProfilePage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-10 space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">{t('myProfile')}</h1>
+
+      {/* ── Store link (company admins only) ── */}
+      {company && (() => {
+        const storeUrl = `${window.location.origin}/store/${company.slug || company.id}`;
+        return (
+          <div className="bg-orange-50 border border-orange-200 rounded-2xl px-5 py-4">
+            <div className="flex items-center gap-2 mb-2">
+              <BuildingStorefrontIcon className="w-5 h-5 text-orange-500" />
+              <h2 className="text-sm font-semibold text-orange-700">
+                {company.name} — Your Store Link
+              </h2>
+              {company.status !== 'active' && (
+                <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-medium capitalize">
+                  {company.status}
+                </span>
+              )}
+            </div>
+            <p className="text-xs text-gray-500 mb-3">
+              Share this link with your customers — they'll see only your products.
+            </p>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <a
+                href={storeUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 flex items-center gap-2 bg-white border border-orange-200 rounded-xl px-4 py-2.5 text-sm text-orange-600 font-medium hover:bg-orange-50 transition-colors truncate"
+              >
+                <LinkIcon className="w-4 h-4 shrink-0" />
+                <span className="truncate">{storeUrl}</span>
+              </a>
+              <button
+                onClick={() => navigator.clipboard.writeText(storeUrl).then(() => toast.success('Link copied!'))}
+                className="shrink-0 flex items-center justify-center gap-1.5 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-xl transition-colors"
+              >
+                <LinkIcon className="w-4 h-4" />
+                Copy Link
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ── Avatar + identity ── */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col sm:flex-row items-center gap-6">

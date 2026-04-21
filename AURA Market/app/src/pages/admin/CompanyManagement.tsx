@@ -8,6 +8,7 @@ import {
   updateCompany,
   setCompanyStatus,
   deleteCompany,
+  backfillCompanySlugs,
 } from '../../services/companyService';
 import { doc, updateDoc, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../firebase/config';
@@ -21,6 +22,7 @@ import Spinner from '../../components/ui/Spinner';
 import {
   PlusIcon, PencilIcon, TrashIcon, BuildingOfficeIcon,
   CheckCircleIcon, XCircleIcon, ClockIcon, UserPlusIcon,
+  LinkIcon, ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
@@ -106,6 +108,20 @@ export default function CompanyManagement() {
   const [editCompany, setEditCompany] = useState<Company | null>(null);
   const [assignTarget, setAssignTarget] = useState<Company | null>(null);
   const [saving, setSaving] = useState(false);
+  const [backfilling, setBackfilling] = useState(false);
+
+  async function handleBackfill() {
+    setBackfilling(true);
+    try {
+      const count = await backfillCompanySlugs();
+      if (count === 0) toast.success('All companies already have store links.');
+      else toast.success(`Store links generated for ${count} company${count > 1 ? 'ies' : ''}!`);
+    } catch {
+      toast.error('Backfill failed — try again.');
+    } finally {
+      setBackfilling(false);
+    }
+  }
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -193,9 +209,22 @@ export default function CompanyManagement() {
           <h1 className="text-2xl font-bold text-gray-900">Companies</h1>
           <p className="text-sm text-gray-500 mt-0.5">Manage vendor companies and their marketplace permissions</p>
         </div>
-        <Button onClick={openAdd}>
-          <PlusIcon className="w-4 h-4" /> Add Company
-        </Button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleBackfill}
+            disabled={backfilling}
+            title="Generate store links for companies that don't have one yet"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-gray-200 rounded-lg bg-white hover:bg-gray-50 text-gray-600 disabled:opacity-50 transition-colors"
+          >
+            {backfilling
+              ? <ArrowPathIcon className="w-4 h-4 animate-spin" />
+              : <LinkIcon className="w-4 h-4" />}
+            Fix Store Links
+          </button>
+          <Button onClick={openAdd}>
+            <PlusIcon className="w-4 h-4" /> Add Company
+          </Button>
+        </div>
       </div>
 
       {/* Stats row */}
@@ -227,7 +256,7 @@ export default function CompanyManagement() {
             <table className="min-w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  {['Company', 'Status', 'Max Products', 'Disc. Limit', 'Order Mgmt', 'Expires', 'Actions'].map(h => (
+                  {['Company', 'Store Link', 'Status', 'Max Products', 'Disc. Limit', 'Order Mgmt', 'Expires', 'Actions'].map(h => (
                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -239,6 +268,23 @@ export default function CompanyManagement() {
                     <td className="px-4 py-3">
                       <p className="font-semibold text-gray-900">{c.name}</p>
                       <p className="text-xs text-gray-400">{c.email}</p>
+                    </td>
+
+                    {/* Store link */}
+                    <td className="px-4 py-3">
+                      {c.slug ? (
+                        <a
+                          href={`/store/${c.slug}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 text-xs text-orange-500 hover:text-orange-700 font-medium whitespace-nowrap"
+                        >
+                          <LinkIcon className="w-3.5 h-3.5 shrink-0" />
+                          /store/{c.slug}
+                        </a>
+                      ) : (
+                        <span className="text-xs text-gray-300 italic">No link yet</span>
+                      )}
                     </td>
 
                     {/* Status */}

@@ -12,6 +12,7 @@ export interface CompanyPermissions {
 export interface Company {
   id: string;
   name: string;
+  slug: string;           // URL-safe identifier, e.g. "aura-clothing-co"
   email: string;
   logoURL?: string;
   ownerId: string;

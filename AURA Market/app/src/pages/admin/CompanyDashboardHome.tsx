@@ -14,9 +14,42 @@ import type { Order, OrderStatus } from '../../types/order.types';
 import {
   CubeIcon, ShoppingBagIcon, CurrencyDollarIcon, ClockIcon,
   ExclamationTriangleIcon, CheckCircleIcon, XCircleIcon,
-  PhoneIcon, EnvelopeIcon, MapPinIcon, PlusIcon,
+  PhoneIcon, EnvelopeIcon, MapPinIcon, PlusIcon, LinkIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+
+/* ── Shareable Store Link card ─────────────────────────────────── */
+function StoreLinkCard({ company }: { company: Company }) {
+  const url = `${window.location.origin}/store/${company.slug || company.id}`;
+
+  function copy() {
+    navigator.clipboard.writeText(url).then(() => toast.success('Link copied!'));
+  }
+
+  return (
+    <div className="bg-orange-50 border border-orange-200 rounded-xl px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
+      <LinkIcon className="w-5 h-5 text-orange-500 shrink-0" />
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-semibold text-orange-700 uppercase tracking-wide mb-0.5">Your Store Link</p>
+        <p className="text-xs text-gray-500 mb-1">Share this link with customers to show only your products.</p>
+        <a
+          href={url}
+          target="_blank"
+          rel="noreferrer"
+          className="text-sm font-medium text-orange-600 hover:text-orange-800 break-all"
+        >
+          {url}
+        </a>
+      </div>
+      <button
+        onClick={copy}
+        className="shrink-0 text-xs px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+      >
+        Copy Link
+      </button>
+    </div>
+  );
+}
 
 /* ── Company status banner ─────────────────────────────────────── */
 function StatusBanner({ company }: { company: Company }) {
@@ -114,6 +147,9 @@ export default function CompanyDashboardHome() {
 
       {/* Company status banner */}
       {company && <StatusBanner company={company} />}
+
+      {/* Shareable store link */}
+      {company && company.status === 'active' && <StoreLinkCard company={company} />}
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

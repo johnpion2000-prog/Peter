@@ -11,6 +11,7 @@ import CartPage from '../pages/CartPage';
 import CheckoutPage from '../pages/CheckoutPage';
 import OrderSuccessPage from '../pages/OrderSuccessPage';
 import ProfilePage from '../pages/ProfilePage';
+import CompanyStorefrontPage from '../pages/CompanyStorefrontPage';
 
 // Auth pages
 import LoginPage from '../pages/auth/LoginPage';
@@ -27,6 +28,7 @@ import OrderManagement from '../pages/admin/OrderManagement';
 import UserManagement from '../pages/admin/UserManagement';
 import DiscountManagement from '../pages/admin/DiscountManagement';
 import CompanyManagement from '../pages/admin/CompanyManagement';
+import CompanyProfilePage from '../pages/admin/CompanyProfilePage';
 
 function StorefrontLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -74,6 +76,7 @@ export default function AppRouter() {
         <Route path="users"                element={<RouteGuard roles={['superAdmin']}><UserManagement /></RouteGuard>} />
         <Route path="discounts"            element={<RouteGuard roles={['superAdmin']}><DiscountManagement /></RouteGuard>} />
         <Route path="companies"            element={<RouteGuard roles={['superAdmin']}><CompanyManagement /></RouteGuard>} />
+        <Route path="company-profile"      element={<RouteGuard roles={['companyAdmin']}><CompanyProfilePage /></RouteGuard>} />
       </Route>
 
       {/* ── Storefront ── */}
@@ -92,6 +95,7 @@ export default function AppRouter() {
         }
       />
       <Route path="/order-success"  element={<StorefrontLayout><OrderSuccessPage /></StorefrontLayout>} />
+      <Route path="/store/:slug"    element={<StorefrontLayout><CompanyStorefrontPage /></StorefrontLayout>} />
       <Route
         path="/profile"
         element={

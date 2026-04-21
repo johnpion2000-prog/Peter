@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import {
   onSnapshot, addDoc, updateDoc, deleteDoc, doc, getDoc,
-  serverTimestamp, Timestamp,
+  getDocs, query, where, serverTimestamp, Timestamp,
 } from 'firebase/firestore';
 import { companiesCol } from '../firebase/collections';
 import { db } from '../firebase/config';
+import { slugify } from '../utils/slugify';
 import type { Company, CompanyFormData, CompanyStatus } from '../types/company.types';
 
 export function useCompanies() {
@@ -34,6 +35,7 @@ export function useCompanies() {
 export async function createCompany(data: CompanyFormData): Promise<string> {
   const ref = await addDoc(companiesCol, {
     name: data.name,
+    slug: slugify(data.name),
     email: data.email,
     ownerEmail: data.ownerEmail,
     ownerId: '',
@@ -54,7 +56,7 @@ export async function createCompany(data: CompanyFormData): Promise<string> {
 
 export async function updateCompany(id: string, data: Partial<CompanyFormData>): Promise<void> {
   await updateDoc(doc(db, 'companies', id), {
-    ...(data.name && { name: data.name }),
+    ...(data.name && { name: data.name, slug: slugify(data.name) }),
     ...(data.email && { email: data.email }),
     ...(data.description !== undefined && { description: data.description }),
     permissions: {
@@ -102,6 +104,7 @@ export async function applyAsVendor(
 ): Promise<string> {
   const ref = await addDoc(companiesCol, {
     name:        data.companyName,
+    slug:        slugify(data.companyName),
     email:       data.companyEmail || email,
     ownerEmail:  email,
     ownerId:     uid,
@@ -117,4 +120,31 @@ export async function applyAsVendor(
     createdAt:    serverTimestamp(),
   } as Omit<Company, 'id'>);
   return ref.id;
+}
+
+/** Find a company by its URL slug. Returns null if not found. */
+export async function getCompanyBySlug(slug: string): Promise<Company | null> {
+  const q = query(companiesCol, where('slug', '==', slug));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  const d = snap.docs[0];
+  const { id: _id, ...rest } = d.data() as Company;
+  return { id: d.id, ...rest } as Company;
+}
+
+/**
+ * Backfill: generate a slug for every company that is missing one.
+ * Returns the number of companies updated.
+ */
+export async function backfillCompanySlugs(): Promise<number> {
+  const snap = await getDocs(companiesCol);
+  const missing = snap.docs.filter(d => !(d.data() as Company).slug);
+  await Promise.all(
+    missing.map(d =>
+      updateDoc(doc(db, 'companies', d.id), {
+        slug: slugify((d.data() as Company).name),
+      }),
+    ),
+  );
+  return missing.length;
 }

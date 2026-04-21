@@ -4,6 +4,7 @@ import { useAuthContext } from '../../context/AuthContext';
 import {
   HomeIcon, CubeIcon, ShoppingBagIcon, UsersIcon, TagIcon,
   BuildingOfficeIcon, Squares2X2Icon, Bars3Icon, XMarkIcon, ArrowLeftOnRectangleIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
@@ -18,9 +19,10 @@ const superAdminLinks = [
 ];
 
 const companyAdminLinks = [
-  { to: '/admin',          label: 'Dashboard',  icon: HomeIcon },
-  { to: '/admin/products', label: 'My Products', icon: CubeIcon },
-  { to: '/admin/orders',   label: 'My Orders',   icon: ShoppingBagIcon },
+  { to: '/admin',                 label: 'Dashboard',   icon: HomeIcon },
+  { to: '/admin/products',        label: 'My Products',  icon: CubeIcon },
+  { to: '/admin/orders',          label: 'My Orders',    icon: ShoppingBagIcon },
+  { to: '/admin/company-profile', label: 'My Profile',   icon: UserCircleIcon },
 ];
 
 export default function AdminLayout() {
