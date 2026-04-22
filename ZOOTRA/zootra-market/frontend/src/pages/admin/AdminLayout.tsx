@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Package, FolderOpen, ShoppingBag, Users, Tag,
-  Leaf, Eye, LogOut, CalendarCheck, Menu, X, type LucideIcon,
+  Leaf, Eye, LogOut, CalendarCheck, Menu, X, MessageSquare, type LucideIcon,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import AdminNotificationBell from '../../components/admin/AdminNotificationBell';
 
 const navItems: { to: string; label: string; icon: LucideIcon; end?: boolean }[] = [
   { to: '/admin',            label: 'Dashboard',  icon: LayoutDashboard, end: true },
@@ -14,6 +15,7 @@ const navItems: { to: string; label: string; icon: LucideIcon; end?: boolean }[]
   { to: '/admin/users',      label: 'Users',      icon: Users },
   { to: '/admin/discounts',  label: 'Discounts',  icon: Tag },
   { to: '/admin/bookings',   label: 'Bookings',   icon: CalendarCheck },
+  { to: '/admin/reviews',    label: 'Reviews',    icon: MessageSquare },
 ];
 
 /* shared nav-link style builder */
@@ -39,10 +41,11 @@ const AdminLayout: React.FC = () => {
       <div className="px-5 py-5 border-b border-gray-100 flex-shrink-0">
         <div className="flex items-center gap-2">
           <Leaf className="w-6 h-6 text-green-500" />
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="text-lg font-bold text-green-700 leading-none">ZOOTRA</h1>
             <p className="text-xs text-gray-400">Admin Panel</p>
           </div>
+          <AdminNotificationBell />
         </div>
       </div>
 
@@ -127,10 +130,11 @@ const AdminLayout: React.FC = () => {
           >
             <Menu className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1">
             <Leaf className="w-5 h-5 text-green-500" />
             <span className="text-base font-bold text-green-700">ZOOTRA Admin</span>
           </div>
+          <AdminNotificationBell />
         </header>
 
         {/* Page content */}

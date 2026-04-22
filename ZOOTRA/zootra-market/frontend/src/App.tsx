@@ -26,6 +26,7 @@ import OrderManagement from './pages/admin/OrderManagement';
 import UserManagement from './pages/admin/UserManagement';
 import DiscountManagement from './pages/admin/DiscountManagement';
 import BookingManagement from './pages/admin/BookingManagement';
+import ReviewManagement from './pages/admin/ReviewManagement';
 
 // Public layout wrapper
 const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -63,6 +64,7 @@ const App: React.FC = () => {
             <Route path="users" element={<UserManagement />} />
             <Route path="discounts" element={<DiscountManagement />} />
             <Route path="bookings" element={<BookingManagement />} />
+            <Route path="reviews" element={<ReviewManagement />} />
           </Route>
 
           {/* Fallback */}

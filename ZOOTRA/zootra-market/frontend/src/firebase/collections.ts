@@ -4,6 +4,7 @@ import { Product } from '../types/product.types';
 import { AppUser } from '../types/user.types';
 import { Order } from '../types/order.types';
 import { Booking } from '../types/booking.types';
+import { Review } from '../types/review.types';
 
 function typedCollection<T = DocumentData>(path: string) {
   return collection(db, path) as CollectionReference<T>;
@@ -15,6 +16,7 @@ export const ordersCol = typedCollection<Order>('orders');
 export const bookingsCol = typedCollection<Booking>('bookings');
 export const categoriesCol = typedCollection<{ name: string; icon: string; slug: string }>('categories');
 export const promoCodesCol = typedCollection<{ code: string; discount: number; active: boolean; expiresAt: string }>('promoCodes');
+export const reviewsCol = typedCollection<Review>('reviews');
 
 // Re-export db for use in services
 export { db };

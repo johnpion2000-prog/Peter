@@ -9,6 +9,8 @@ import { useUserBookings } from '../hooks/useBookings';
 import { SERVICE_LABELS, ServiceType, BookingStatus } from '../types/booking.types';
 import { useUIStore } from '../stores/uiStore';
 import Spinner from '../components/ui/Spinner';
+import { createReview, getUserReviewForSubject } from '../services/reviewService';
+import StarRating from '../components/common/StarRating';
 
 /* ── Form schema ── */
 const bookingSchema = z.object({
@@ -59,6 +61,138 @@ const Field: React.FC<{ label: string; error?: string; children: React.ReactNode
     {error && <p className="text-xs text-red-500 mt-0.5">{error}</p>}
   </div>
 );
+
+/* ── Inline Review Form for a single completed booking ── */
+const BookingReviewForm: React.FC<{
+  bookingId: string;
+  serviceLabel: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  onDone: () => void;
+}> = ({ bookingId, serviceLabel, userId, userName, userEmail, onDone }) => {
+  const showToast = useUIStore((s) => s.showToast);
+  const [rating, setRating] = React.useState(5);
+  const [comment, setComment] = React.useState('');
+  const [submitting, setSubmitting] = React.useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await createReview({
+        userId,
+        userName,
+        userEmail,
+        subjectType: 'service',
+        subjectId: bookingId,
+        subjectName: serviceLabel,
+        rating,
+        comment: comment.trim(),
+      });
+      showToast('Review submitted! Thank you.', 'success');
+      onDone();
+    } catch {
+      showToast('Failed to submit review', 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-3 bg-green-50 rounded-xl p-4 border border-green-100">
+      <p className="text-xs font-semibold text-green-800 mb-2">Rate this appointment</p>
+      <StarRating value={rating} onChange={setRating} size="md" />
+      <textarea
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        rows={2}
+        placeholder="How was your experience? (optional)"
+        className="mt-2 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+      />
+      <div className="flex gap-2 mt-2">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="bg-green-600 hover:bg-green-700 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition disabled:opacity-60"
+        >
+          {submitting ? 'Submitting…' : 'Submit Review'}
+        </button>
+        <button type="button" onClick={onDone} className="text-xs text-gray-500 hover:text-gray-700 px-3 py-1.5 rounded-lg border border-gray-200 hover:bg-gray-100 transition">
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+};
+
+/* ── Booking card with review section ── */
+const BookingCard: React.FC<{
+  booking: ReturnType<typeof useUserBookings>['bookings'][number];
+  user: { uid: string; displayName: string | null; email: string | null } | null;
+}> = ({ booking: b, user }) => {
+  const [reviewed, setReviewed] = React.useState<boolean | null>(null);
+  const [showForm, setShowForm] = React.useState(false);
+  const Icon = serviceIcons[b.serviceType];
+
+  React.useEffect(() => {
+    if (!user || b.status !== 'completed') return;
+    getUserReviewForSubject(user.uid, b.id).then((r) => setReviewed(!!r));
+  }, [user, b.id, b.status]);
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 flex gap-4 items-start">
+      <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
+        <Icon className="w-5 h-5 text-green-600" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-2 flex-wrap">
+          <h3 className="font-semibold text-gray-800">{SERVICE_LABELS[b.serviceType]}</h3>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusStyles[b.status]}`}>
+            {b.status.charAt(0).toUpperCase() + b.status.slice(1)}
+          </span>
+        </div>
+        <p className="text-sm text-gray-500 mt-0.5 truncate">{b.animalDescription}</p>
+        <div className="flex flex-wrap gap-3 mt-2 text-xs text-gray-400">
+          <span className="flex items-center gap-1"><CalendarCheck className="w-3 h-3" />{b.preferredDate}</span>
+          <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{b.preferredTime}</span>
+          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{b.location}</span>
+        </div>
+        <p className={`text-xs mt-2 px-2 py-1 rounded-lg font-medium ${statusStyles[b.status]}`}>
+          {statusMessage[b.status]}
+        </p>
+        {b.notes && <p className="text-xs text-gray-400 mt-1 italic">"{b.notes}"</p>}
+
+        {/* Review section — only for completed bookings */}
+        {b.status === 'completed' && user && (
+          <div className="mt-2">
+            {reviewed === false && !showForm && (
+              <button
+                onClick={() => setShowForm(true)}
+                className="text-xs font-semibold text-green-700 border border-green-200 bg-green-50 hover:bg-green-100 px-3 py-1 rounded-lg transition"
+              >
+                Leave a Review
+              </button>
+            )}
+            {reviewed === true && (
+              <p className="text-xs text-green-700 bg-green-50 px-2 py-1 rounded-lg inline-block">Review submitted</p>
+            )}
+            {showForm && (
+              <BookingReviewForm
+                bookingId={b.id}
+                serviceLabel={SERVICE_LABELS[b.serviceType]}
+                userId={user.uid}
+                userName={user.displayName ?? 'Anonymous'}
+                userEmail={user.email ?? ''}
+                onDone={() => { setShowForm(false); setReviewed(true); }}
+              />
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 /* ── Main component ── */
 const BookingPage: React.FC = () => {
@@ -214,35 +348,9 @@ const BookingPage: React.FC = () => {
                 </button>
               </div>
             ) : (
-              bookings.map((b) => {
-                const Icon = serviceIcons[b.serviceType];
-                return (
-                  <div key={b.id} className="bg-white rounded-2xl border border-gray-100 p-5 flex gap-4 items-start">
-                    <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center flex-shrink-0">
-                      <Icon className="w-5 h-5 text-green-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 flex-wrap">
-                        <h3 className="font-semibold text-gray-800">{SERVICE_LABELS[b.serviceType]}</h3>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusStyles[b.status]}`}>
-                          {b.status.charAt(0).toUpperCase() + b.status.slice(1)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-500 mt-0.5 truncate">{b.animalDescription}</p>
-                      <div className="flex flex-wrap gap-3 mt-2 text-xs text-gray-400">
-                        <span className="flex items-center gap-1"><CalendarCheck className="w-3 h-3" />{b.preferredDate}</span>
-                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{b.preferredTime}</span>
-                        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{b.location}</span>
-                      </div>
-                      {/* Status message */}
-                      <p className={`text-xs mt-2 px-2 py-1 rounded-lg font-medium ${statusStyles[b.status]}`}>
-                        {statusMessage[b.status]}
-                      </p>
-                      {b.notes && <p className="text-xs text-gray-400 mt-1 italic">"{b.notes}"</p>}
-                    </div>
-                  </div>
-                );
-              })
+              bookings.map((b) => (
+                <BookingCard key={b.id} booking={b} user={user} />
+              ))
             )}
           </div>
         )}
