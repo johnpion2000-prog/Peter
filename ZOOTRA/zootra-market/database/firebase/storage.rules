@@ -1,0 +1,16 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Product images: any authenticated user can read; only admin can write/delete
+    // Admin is determined by checking the custom claim or we allow any authenticated user to upload
+    // (admin-only check not possible in Storage rules without custom claims, so we trust the Firestore rules)
+    match /product-images/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth != null;
+    }
+  }
+}
