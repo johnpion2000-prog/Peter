@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -196,15 +197,30 @@ const BookingCard: React.FC<{
 
 /* ── Main component ── */
 const BookingPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const showToast = useUIStore((s) => s.showToast);
-  const { bookings, loading, refetch } = useUserBookings(user?.uid);
-  const [tab, setTab] = useState<'book' | 'history'>('book');
+  const location = useLocation();
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<BookingFormData>({
+  // Parse ?service=... from URL
+  const params = new URLSearchParams(location.search);
+  const serviceParam = params.get('service');
+  const validService = ['vet', 'groomer', 'trainer', 'consultant', 'transport'].includes(serviceParam || '') ? serviceParam : undefined;
+
+  const { bookings, loading, refetch } = useUserBookings(user?.uid);
+  const [tab, setTab] = useState<'book' | 'history'>(validService ? 'book' : 'book');
+
+  React.useEffect(() => {
+    if (validService) setTab('book');
+  }, [validService]);
+
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting }, setValue } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
-    defaultValues: { serviceType: 'vet', notes: '' },
+    defaultValues: { serviceType: (validService as ServiceType) || 'vet', notes: '' },
   });
+
+  React.useEffect(() => {
+    if (validService) setValue('serviceType', validService as ServiceType);
+  }, [validService, setValue]);
 
   const onSubmit = async (data: BookingFormData) => {
     if (!user) return;
@@ -230,6 +246,22 @@ const BookingPage: React.FC = () => {
       showToast(err.message ?? 'Failed to create booking', 'error');
     }
   };
+
+  // Fallbacks for loading and unauthenticated states
+  if (authLoading) {
+    return <div className="min-h-screen flex items-center justify-center"><Spinner size="lg" /></div>;
+  }
+  if (!user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <div className="bg-white rounded-xl shadow p-8 flex flex-col items-center">
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">Sign in required</h2>
+          <p className="text-gray-500 mb-4">Please log in to book a service or view your bookings.</p>
+          <a href="/login" className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition">Go to Login</a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">

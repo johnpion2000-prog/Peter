@@ -1,14 +1,10 @@
 import { Timestamp } from 'firebase/firestore';
 
 export type ProductCategory =
-  | 'cattle'
-  | 'goat'
-  | 'sheep'
-  | 'pig'
-  | 'dog'
-  | 'cat'
-  | 'bird'
-  | 'rabbit'
+  | 'livestock'
+  | 'feed'
+  | 'pet'
+  | 'health'
   | 'other';
 
 export interface Product {

@@ -1,15 +1,11 @@
 import { ProductCategory } from '../types/product.types';
 
 export const PRODUCT_CATEGORIES: { value: ProductCategory; label: string }[] = [
-  { value: 'cattle', label: 'Cattle' },
-  { value: 'goat', label: 'Goats' },
-  { value: 'sheep', label: 'Sheep' },
-  { value: 'pig', label: 'Pigs' },
-  { value: 'dog', label: 'Dogs' },
-  { value: 'cat', label: 'Cats' },
-  { value: 'bird', label: 'Birds' },
-  { value: 'rabbit', label: 'Rabbits' },
-  { value: 'other', label: 'Other' },
+  { value: 'livestock', label: 'Livestock Products' },
+  { value: 'feed',      label: 'Animal Feed' },
+  { value: 'pet',       label: 'Pet Products' },
+  { value: 'health',    label: 'Animal Health' },
+  { value: 'other',     label: 'Other' },
 ];
 
 export const MAX_DISCOUNT_PERCENT = 80;

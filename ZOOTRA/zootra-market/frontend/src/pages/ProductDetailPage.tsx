@@ -37,7 +37,9 @@ const ProductDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (!user || !id) return;
-    getUserReviewForSubject(user.uid, id).then((r) => setHasReviewed(!!r));
+    getUserReviewForSubject(user.uid, id)
+      .then((r) => setHasReviewed(!!r))
+      .catch(() => { /* index may be building, silently ignore */ });
   }, [user, id]);
 
   const handleReviewSubmit = async (e: React.FormEvent) => {

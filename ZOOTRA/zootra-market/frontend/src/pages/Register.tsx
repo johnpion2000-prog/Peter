@@ -9,6 +9,7 @@ const Register: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [role, setRole] = useState<'customer' | 'provider'>('customer');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -20,7 +21,7 @@ const Register: React.FC = () => {
     if (password !== confirm) { setError('Passwords do not match.'); return; }
     setLoading(true);
     try {
-      await register(name, email, password);
+      await register(name, email, password, role);
       navigate('/');
     } catch (err: any) {
       setError(getFirebaseErrorMessage(err.code));
@@ -50,6 +51,19 @@ const Register: React.FC = () => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
             </div>
           ))}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
+            <div className="flex gap-4">
+              <label className="inline-flex items-center">
+                <input type="radio" name="role" value="customer" checked={role === 'customer'} onChange={() => setRole('customer')} className="form-radio text-green-600" />
+                <span className="ml-2">Customer</span>
+              </label>
+              <label className="inline-flex items-center">
+                <input type="radio" name="role" value="provider" checked={role === 'provider'} onChange={() => setRole('provider')} className="form-radio text-green-600" />
+                <span className="ml-2">Company / Seller</span>
+              </label>
+            </div>
+          </div>
           <Button type="submit" loading={loading} className="w-full" size="lg">Create Account</Button>
         </form>
         <p className="text-center text-sm text-gray-500 mt-6">

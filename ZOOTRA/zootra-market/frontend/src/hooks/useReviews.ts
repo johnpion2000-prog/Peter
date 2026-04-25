@@ -12,10 +12,17 @@ export const useSubjectReviews = (subjectId: string | undefined) => {
   useEffect(() => {
     if (!subjectId) { setLoading(false); return; }
     const q = query(reviewsCol, where('subjectId', '==', subjectId), orderBy('createdAt', 'desc'));
-    const unsub = onSnapshot(q, (snap) => {
-      setReviews(snap.docs.map((d) => ({ ...d.data(), id: d.id }) as Review));
-      setLoading(false);
-    });
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        setReviews(snap.docs.map((d) => ({ ...d.data(), id: d.id }) as Review));
+        setLoading(false);
+      },
+      () => {
+        // Query may fail if composite index is still building — fail gracefully
+        setLoading(false);
+      }
+    );
     return unsub;
   }, [subjectId]);
 

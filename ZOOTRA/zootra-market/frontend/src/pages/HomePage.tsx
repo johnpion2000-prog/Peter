@@ -17,9 +17,9 @@ import Spinner from '../components/ui/Spinner';
 interface ServiceItem { icon: LucideIcon; title: string; description: string; action: string; href: string }
 
 const services: ServiceItem[] = [
-  { icon: Stethoscope, title: 'Veterinary Services', description: 'Connect with certified vets for check-ups, vaccinations, and emergency care for your animals.', action: 'Book Now', href: '/services?type=vet' },
-  { icon: Scissors, title: 'Pet Grooming', description: 'Professional grooming services to keep your pets clean, healthy, and looking their best.', action: 'Book Now', href: '/services?type=groomer' },
-  { icon: GraduationCap, title: 'Animal Training', description: 'Expert trainers for livestock obedience, working animals, and domestic pet behaviour.', action: 'Book Now', href: '/services?type=trainer' },
+  { icon: Stethoscope, title: 'Veterinary Services', description: 'Connect with certified vets for check-ups, vaccinations, and emergency care for your animals.', action: 'Book Now', href: '/booking?service=vet' },
+  { icon: Scissors, title: 'Pet Grooming', description: 'Professional grooming services to keep your pets clean, healthy, and looking their best.', action: 'Book Now', href: '/booking?service=groomer' },
+  { icon: GraduationCap, title: 'Animal Training', description: 'Expert trainers for livestock obedience, working animals, and domestic pet behaviour.', action: 'Book Now', href: '/booking?service=trainer' },
   { icon: ClipboardList, title: 'Farm Consultation', description: 'Get expert advice on farm management, breed selection, and productivity improvement.', action: 'Contact', href: '/services?type=consultant' },
   { icon: Truck, title: 'Animal Transport', description: 'Safe, stress-free transport of livestock and pets across Kigali and all Rwanda provinces.', action: 'Contact', href: '/services?type=transport' },
 ];
@@ -67,7 +67,7 @@ const HomePage: React.FC = () => {
             Buy, sell, and access veterinary services, feed, and pet products — all in one trusted marketplace across Rwanda.
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
-            <Link to="/products" className="bg-white text-green-700 font-semibold px-6 py-3 rounded-lg hover:bg-green-50 transition">Browse Animals</Link>
+            <Link to="/products" className="bg-white text-green-700 font-semibold px-6 py-3 rounded-lg hover:bg-green-50 transition">Browse Products</Link>
             <Link to="/register" className="border border-white text-white font-semibold px-6 py-3 rounded-lg hover:bg-white/10 transition">Start Selling</Link>
           </div>
         </div>
@@ -83,8 +83,8 @@ const HomePage: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-            {/* A. Livestock Products */}
-            <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5 flex flex-col gap-3 hover:shadow-md transition">
+            {/* A. Livestock Products — whole card is a link */}
+            <Link to="/products?category=livestock" className="bg-orange-50 border border-orange-100 rounded-2xl p-5 flex flex-col gap-3 hover:shadow-md hover:border-orange-300 transition group">
               <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
                 <Layers className="w-5 h-5 text-orange-600" />
               </div>
@@ -95,13 +95,13 @@ const HomePage: React.FC = () => {
                 <li className="flex items-center gap-2"><ChevronRight className="w-3 h-3 text-orange-400 flex-shrink-0" />Pig (Pork)</li>
                 <li className="flex items-center gap-2"><ChevronRight className="w-3 h-3 text-orange-400 flex-shrink-0" />Poultry (Eggs)</li>
               </ul>
-              <Link to="/products?category=livestock" className="mt-auto text-sm font-semibold text-orange-600 hover:text-orange-700 transition flex items-center gap-1">
+              <span className="mt-auto text-sm font-semibold text-orange-600 group-hover:text-orange-700 transition flex items-center gap-1">
                 Browse <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
+              </span>
+            </Link>
 
             {/* B. Animal Feed */}
-            <div className="bg-yellow-50 border border-yellow-100 rounded-2xl p-5 flex flex-col gap-3 hover:shadow-md transition">
+            <Link to="/products?category=feed" className="bg-yellow-50 border border-yellow-100 rounded-2xl p-5 flex flex-col gap-3 hover:shadow-md hover:border-yellow-300 transition group">
               <div className="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center">
                 <Leaf className="w-5 h-5 text-yellow-600" />
               </div>
@@ -111,13 +111,13 @@ const HomePage: React.FC = () => {
                 <li className="flex items-center gap-2"><ChevronRight className="w-3 h-3 text-yellow-400 flex-shrink-0" />Supplements</li>
                 <li className="flex items-center gap-2"><ChevronRight className="w-3 h-3 text-yellow-400 flex-shrink-0" />Organic Feed</li>
               </ul>
-              <Link to="/products?category=feed" className="mt-auto text-sm font-semibold text-yellow-700 hover:text-yellow-800 transition flex items-center gap-1">
+              <span className="mt-auto text-sm font-semibold text-yellow-700 group-hover:text-yellow-800 transition flex items-center gap-1">
                 Browse <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
+              </span>
+            </Link>
 
             {/* C. Pet Products */}
-            <div className="bg-purple-50 border border-purple-100 rounded-2xl p-5 flex flex-col gap-3 hover:shadow-md transition">
+            <Link to="/products?category=pet" className="bg-purple-50 border border-purple-100 rounded-2xl p-5 flex flex-col gap-3 hover:shadow-md hover:border-purple-300 transition group">
               <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
                 <PawPrint className="w-5 h-5 text-purple-600" />
               </div>
@@ -127,13 +127,13 @@ const HomePage: React.FC = () => {
                 <li className="flex items-center gap-2"><ChevronRight className="w-3 h-3 text-purple-400 flex-shrink-0" />Toys</li>
                 <li className="flex items-center gap-2"><ChevronRight className="w-3 h-3 text-purple-400 flex-shrink-0" />Accessories</li>
               </ul>
-              <Link to="/products?category=pet" className="mt-auto text-sm font-semibold text-purple-600 hover:text-purple-700 transition flex items-center gap-1">
+              <span className="mt-auto text-sm font-semibold text-purple-600 group-hover:text-purple-700 transition flex items-center gap-1">
                 Browse <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
+              </span>
+            </Link>
 
             {/* D. Animal Health */}
-            <div className="bg-green-50 border border-green-100 rounded-2xl p-5 flex flex-col gap-3 hover:shadow-md transition">
+            <Link to="/products?category=health" className="bg-green-50 border border-green-100 rounded-2xl p-5 flex flex-col gap-3 hover:shadow-md hover:border-green-300 transition group">
               <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
                 <Pill className="w-5 h-5 text-green-600" />
               </div>
@@ -143,10 +143,10 @@ const HomePage: React.FC = () => {
                 <li className="flex items-center gap-2"><ChevronRight className="w-3 h-3 text-green-400 flex-shrink-0" />Medicines</li>
                 <li className="flex items-center gap-2"><ChevronRight className="w-3 h-3 text-green-400 flex-shrink-0" />Supplements</li>
               </ul>
-              <Link to="/products?category=health" className="mt-auto text-sm font-semibold text-green-600 hover:text-green-700 transition flex items-center gap-1">
+              <span className="mt-auto text-sm font-semibold text-green-600 group-hover:text-green-700 transition flex items-center gap-1">
                 Browse <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
+              </span>
+            </Link>
 
           </div>
         </div>

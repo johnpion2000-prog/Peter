@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const productSchema = z.object({
   productName: z.string().min(2, 'Name must be at least 2 characters'),
-  category: z.enum(['cattle', 'goat', 'sheep', 'pig', 'dog', 'cat', 'bird', 'rabbit', 'other']),
+  category: z.enum(['livestock', 'feed', 'pet', 'health', 'other']),
   price: z.number().min(1, 'Price must be greater than 0'),
   discountPercent: z.number().min(0).max(99),
   description: z.string().min(10, 'Description must be at least 10 characters'),

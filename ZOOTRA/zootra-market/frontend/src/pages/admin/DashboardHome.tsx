@@ -10,6 +10,13 @@ const DashboardHome: React.FC = () => {
   const lowStock = products.filter((p) => p.stock <= 2 && p.stock > 0);
   const recent = orders.slice(0, 5);
 
+  // Admin order actions
+  const handleOrderStatus = async (orderId: string, status: string) => {
+    // You may want to use an orderService here for real update
+    // For now, just show a toast or log (implement actual update in your service)
+    alert(`Set order ${orderId} to ${status}`);
+  };
+
   if (loading) return <div className="flex justify-center py-16"><Spinner size="lg" /></div>;
 
   return (
@@ -33,20 +40,59 @@ const DashboardHome: React.FC = () => {
           <h2 className="font-semibold text-gray-900 mb-4">Recent Orders</h2>
           {recent.length === 0 ? <p className="text-gray-400 text-sm">No orders yet.</p> : (
             <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead><tr className="text-gray-400 text-xs font-medium border-b pb-2">
-                <th className="text-left pb-2">Order ID</th><th className="text-left pb-2">Total</th><th className="text-left pb-2">Status</th>
-              </tr></thead>
-              <tbody className="divide-y divide-gray-50">
-                {recent.map((o) => (
-                  <tr key={o.id} className="py-2">
-                    <td className="py-2 font-mono text-xs text-gray-500">#{o.id.slice(0, 8)}</td>
-                    <td className="py-2 font-medium">{formatCurrency(o.total)}</td>
-                    <td className="py-2"><span className="bg-gray-100 px-2 py-0.5 rounded text-xs capitalize">{o.status}</span></td>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-gray-400 text-xs font-medium border-b pb-2">
+                    <th className="text-left pb-2">Order ID</th>
+                    <th className="text-left pb-2">Product</th>
+                    <th className="text-left pb-2">Image</th>
+                    <th className="text-left pb-2">Total</th>
+                    <th className="text-left pb-2">Status</th>
+                    <th className="text-left pb-2">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {recent.map((o) => (
+                    <tr key={o.id} className="py-2">
+                      <td className="py-2 font-mono text-xs text-gray-500">#{o.id.slice(0, 8)}</td>
+                      <td className="py-2">
+                        {o.items.map((item) => (
+                          <div key={item.productId} className="font-medium text-gray-800">
+                            {item.product?.productName || '—'}
+                          </div>
+                        ))}
+                      </td>
+                      <td className="py-2">
+                        {o.items.map((item) => (
+                          <img
+                            key={item.productId}
+                            src={item.product?.imageURL || ''}
+                            alt={item.product?.productName || ''}
+                            className="w-10 h-10 object-cover rounded border mb-1"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          />
+                        ))}
+                      </td>
+                      <td className="py-2 font-medium">{formatCurrency(o.total)}</td>
+                      <td className="py-2"><span className="bg-gray-100 px-2 py-0.5 rounded text-xs capitalize">{o.status}</span></td>
+                      <td className="py-2">
+                        {o.status !== 'cancelled' && (
+                          <button
+                            className="text-xs text-red-600 hover:underline mr-2"
+                            onClick={() => handleOrderStatus(o.id, 'cancelled')}
+                          >Cancel</button>
+                        )}
+                        {o.status !== 'delivered' && (
+                          <button
+                            className="text-xs text-green-600 hover:underline"
+                            onClick={() => handleOrderStatus(o.id, 'delivered')}
+                          >Complete</button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
@@ -64,9 +110,9 @@ const DashboardHome: React.FC = () => {
           )}
         </div>
       </div>
-      <div className="mt-6">
+      {/* <div className="mt-6">
         <SeedDataPanel />
-      </div>
+      </div> */}
     </div>
   );
 };

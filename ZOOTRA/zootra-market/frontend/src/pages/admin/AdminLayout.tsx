@@ -13,6 +13,8 @@ const navItems: { to: string; label: string; icon: LucideIcon; end?: boolean }[]
   { to: '/admin/categories', label: 'Categories', icon: FolderOpen },
   { to: '/admin/orders',     label: 'Orders',     icon: ShoppingBag },
   { to: '/admin/users',      label: 'Users',      icon: Users },
+  { to: '/admin/company-users', label: 'Company Users', icon: Users },
+  { to: '/admin/company-management', label: 'Company Management', icon: Users },
   { to: '/admin/discounts',  label: 'Discounts',  icon: Tag },
   { to: '/admin/bookings',   label: 'Bookings',   icon: CalendarCheck },
   { to: '/admin/reviews',    label: 'Reviews',    icon: MessageSquare },

@@ -1,3 +1,4 @@
+import CompanyDashboard from './pages/provider/CompanyDashboard';
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -5,6 +6,8 @@ import RouteGuard from './routes/RouteGuard';
 import ToastContainer from './components/ui/Toast';
 import Navbar from './components/common/Navbar';
 import AdminPreviewBanner from './components/admin/AdminPreviewBanner';
+import ProviderDashboard from './pages/provider/Dashboard';
+import ProviderRouteGuard from './routes/ProviderRouteGuard';
 
 // Public pages
 import HomePage from './pages/HomePage';
@@ -27,6 +30,8 @@ import UserManagement from './pages/admin/UserManagement';
 import DiscountManagement from './pages/admin/DiscountManagement';
 import BookingManagement from './pages/admin/BookingManagement';
 import ReviewManagement from './pages/admin/ReviewManagement';
+import CompanyUsers from './pages/admin/CompanyUsers';
+import CompanyManagement from './pages/admin/CompanyManagement';
 
 // Public layout wrapper
 const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
@@ -62,10 +67,15 @@ const App: React.FC = () => {
             <Route path="categories" element={<CategoryManagement />} />
             <Route path="orders" element={<OrderManagement />} />
             <Route path="users" element={<UserManagement />} />
+            <Route path="company-users" element={<CompanyUsers />} />
+            <Route path="company-management" element={<CompanyManagement />} />
             <Route path="discounts" element={<DiscountManagement />} />
             <Route path="bookings" element={<BookingManagement />} />
             <Route path="reviews" element={<ReviewManagement />} />
           </Route>
+
+          {/* Provider dashboard route (limited access) */}
+          <Route path="/provider/dashboard" element={<ProviderRouteGuard><CompanyDashboard /></ProviderRouteGuard>} />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

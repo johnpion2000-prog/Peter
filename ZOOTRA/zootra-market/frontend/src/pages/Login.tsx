@@ -15,9 +15,15 @@ const Login: React.FC = () => {
   // Redirect once onAuthStateChanged sets the user (happens after login)
   useEffect(() => {
     if (user) {
-      navigate(user.role === 'admin' ? '/admin' : '/', { replace: true });
+      if (user.role === 'admin') {
+        navigate('/admin', { replace: true });
+      } else if (user.role === 'provider') {
+        navigate('/provider/dashboard', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     }
-  }, [user]);
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

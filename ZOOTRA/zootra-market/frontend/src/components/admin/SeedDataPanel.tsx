@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 const SAMPLE_PRODUCTS = [
   {
     productName: 'Friesian Dairy Cow',
-    category: 'cattle' as const,
+    category: 'livestock' as const,
     price: 850000,
     discountPercent: 10,
     description: 'High-yield Friesian dairy cow, 3 years old, healthy and vaccinated. Producing 15–20 litres per day.',
@@ -16,7 +16,7 @@ const SAMPLE_PRODUCTS = [
   },
   {
     productName: 'Boer Goats (Pair)',
-    category: 'goat' as const,
+    category: 'livestock' as const,
     price: 120000,
     discountPercent: 0,
     description: 'Pure Boer goat pair (male & female), 18 months old, great for meat production and breeding.',
@@ -26,7 +26,7 @@ const SAMPLE_PRODUCTS = [
   },
   {
     productName: 'Layer Hens (50 birds)',
-    category: 'bird' as const,
+    category: 'livestock' as const,
     price: 75000,
     discountPercent: 15,
     description: '50 fully grown ISA Brown layer hens, producing 45+ eggs per day. Ready for immediate transfer.',
@@ -36,7 +36,7 @@ const SAMPLE_PRODUCTS = [
   },
   {
     productName: 'Piglets (Landrace Breed)',
-    category: 'pig' as const,
+    category: 'livestock' as const,
     price: 45000,
     discountPercent: 0,
     description: 'Healthy Landrace piglets, 6 weeks old. Vaccinated, dewormed, and ready for raising.',
@@ -46,7 +46,7 @@ const SAMPLE_PRODUCTS = [
   },
   {
     productName: 'German Shepherd Puppy',
-    category: 'dog' as const,
+    category: 'pet' as const,
     price: 90000,
     discountPercent: 0,
     description: 'Pure German Shepherd puppy, 8 weeks old. First vaccination done. Great family guard dog.',
@@ -56,13 +56,23 @@ const SAMPLE_PRODUCTS = [
   },
   {
     productName: 'Maize Bran Animal Feed (50kg)',
-    category: 'other' as const,
+    category: 'feed' as const,
     price: 8500,
     discountPercent: 5,
     description: 'Premium maize bran for dairy cows, goats, and pigs. Sourced fresh from Rulindo district.',
     stock: 100,
     location: 'Rulindo',
     imageURL: 'https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=400',
+  },
+  {
+    productName: 'Newcastle Disease Vaccine (100 doses)',
+    category: 'health' as const,
+    price: 12000,
+    discountPercent: 0,
+    description: 'Newcastle disease vaccine for poultry, 100 doses. Keep refrigerated. Expiry 12 months.',
+    stock: 50,
+    location: 'Kigali',
+    imageURL: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400',
   },
 ];
 
@@ -114,7 +124,7 @@ const SeedDataPanel: React.FC = () => {
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-gray-800 text-sm">Sample Products</h3>
           <p className="text-xs text-gray-500 mt-0.5">
-            Insert {SAMPLE_PRODUCTS.length} demo products (cattle, goats, poultry, dogs, feed) so the homepage Featured Deals section shows real listings.
+            Insert {SAMPLE_PRODUCTS.length} demo products (livestock, feed, pet &amp; health) so the homepage Featured Deals section shows real listings.
           </p>
 
           {status === 'done' && result && (
