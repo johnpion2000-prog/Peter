@@ -34,9 +34,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             uid: firebaseUser.uid,
             email: firebaseUser.email ?? '',
             displayName: firebaseUser.displayName ?? '',
-            role: 'customer',
             ...profile,
-            isApproved: profile?.isApproved,
+            // Always trust Firestore profile's role and permissions
           });
         } catch {
           setUser({

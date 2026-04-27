@@ -53,6 +53,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
 
+
       {/* ── 1. HERO ── */}
       <section className="bg-gradient-to-br from-green-600 to-green-800 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
@@ -69,6 +70,28 @@ const HomePage: React.FC = () => {
           <div className="flex gap-3 justify-center flex-wrap">
             <Link to="/products" className="bg-white text-green-700 font-semibold px-6 py-3 rounded-lg hover:bg-green-50 transition">Browse Products</Link>
             <Link to="/register" className="border border-white text-white font-semibold px-6 py-3 rounded-lg hover:bg-white/10 transition">Start Selling</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 1B. STATS BAR ── */}
+      <section className="bg-white py-6 px-4 border-b border-green-100">
+        <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+          <div>
+            <div className="text-2xl font-bold text-green-700 mb-1">+1,000</div>
+            <div className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Active Listings</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-green-700 mb-1">+200</div>
+            <div className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Trusted Sellers</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-green-700 mb-1">+10,000</div>
+            <div className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Happy Customers</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-green-700 mb-1">24/7</div>
+            <div className="text-xs text-gray-500 uppercase tracking-widest font-semibold">Support</div>
           </div>
         </div>
       </section>
@@ -172,7 +195,7 @@ const HomePage: React.FC = () => {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featured.map((product) => (
               <div key={product.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
                 <Link to={`/products/${product.id}`}>

@@ -1,10 +1,7 @@
-export const formatCurrency = (amount: number, currency = 'RWF'): string => {
-  return new Intl.NumberFormat('rw-RW', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+
+// Format number with comma as thousands separator, no currency symbol
+export const formatCurrency = (amount: number): string => {
+  return amount.toLocaleString('en-US');
 };
 
 export const formatNumber = (num: number): string =>

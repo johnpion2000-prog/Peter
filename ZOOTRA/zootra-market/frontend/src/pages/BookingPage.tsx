@@ -16,7 +16,7 @@ import StarRating from '../components/common/StarRating';
 /* ── Form schema ── */
 const bookingSchema = z.object({
   serviceType: z.enum(['vet', 'groomer', 'trainer', 'consultant', 'transport'] as const, {
-    required_error: 'Please select a service',
+    error: 'Please select a service',
   }),
   animalDescription: z.string().min(5, 'Describe the animal (min 5 characters)'),
   preferredDate: z.string().min(1, 'Select a date'),
