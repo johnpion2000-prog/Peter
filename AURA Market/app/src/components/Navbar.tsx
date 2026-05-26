@@ -1,200 +1,213 @@
-import { useState, useRef, useEffect } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { ShoppingCartIcon, Bars3Icon, XMarkIcon, UserCircleIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  ShoppingCartIcon,
+  Bars3Icon,
+  XMarkIcon,
+  UserIcon,
+  MagnifyingGlassIcon,
+} from '@heroicons/react/24/outline';
 import { useAuthContext } from '../context/AuthContext';
-import { useLang } from '../context/LanguageContext';
 import { useCartStore } from '../stores/cartStore';
+import { CATEGORIES } from '../config/constants';
 import toast from 'react-hot-toast';
 
 export default function Navbar() {
   const { currentUser, appUser, logout } = useAuthContext();
-  const { lang, setLang, t } = useLang();
   const itemCount = useCartStore(s => s.itemCount());
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen]       = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function onClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
-  }, []);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [query, setQuery] = useState('');
 
   async function handleLogout() {
     await logout();
-    toast.success(t('signOut'));
+    toast.success('Signed out');
     navigate('/');
-    setDropdownOpen(false);
+    setMenuOpen(false);
   }
 
-  const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `text-sm font-medium transition-colors ${isActive ? 'text-orange-500' : 'text-gray-700 hover:text-orange-500'}`;
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    if (query.trim()) navigate(`/products?q=${encodeURIComponent(query.trim())}`);
+  }
 
   const photoURL = appUser?.photoURL ?? currentUser?.photoURL;
   const initials = appUser?.displayName?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) ?? '?';
 
   return (
-    <header className="sticky top-0 z-40 bg-white shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 font-bold text-orange-500 text-xl">
-            ✨ AURA Market
-          </Link>
+    <header className="sticky top-0 z-40">
+      {/* Main orange bar */}
+      <div className="bg-gradient-to-r from-orange-500 to-orange-600 shadow-md">
+        <div className="max-w-[1400px] mx-auto px-3 sm:px-5">
+          <div className="flex items-center gap-2 sm:gap-3 h-14 sm:h-16">
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-6">
-            <NavLink to="/" end className={linkClass}>{t('home')}</NavLink>
-            <NavLink to="/products" className={linkClass}>{t('products')}</NavLink>
-          </nav>
-
-          {/* Right side */}
-          <div className="flex items-center gap-3">
-            {/* Language toggle */}
-            <div className="hidden md:flex items-center gap-1 border border-gray-200 rounded-lg overflow-hidden text-xs font-semibold">
-              <button
-                onClick={() => setLang('en')}
-                className={`px-2.5 py-1.5 transition-colors ${lang === 'en' ? 'bg-orange-500 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
-              >EN</button>
-              <button
-                onClick={() => setLang('fr')}
-                className={`px-2.5 py-1.5 transition-colors ${lang === 'fr' ? 'bg-orange-500 text-white' : 'text-gray-500 hover:bg-gray-50'}`}
-              >FR</button>
-            </div>
-
-            {/* Cart */}
-            <Link to="/cart" className="relative p-2 text-gray-600 hover:text-orange-500 transition-colors">
-              <ShoppingCartIcon className="w-6 h-6" />
-              {itemCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-orange-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {itemCount}
-                </span>
-              )}
-            </Link>
-
-            {/* User menu – desktop */}
-            {currentUser ? (
-              <div className="hidden md:block relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setDropdownOpen(o => !o)}
-                  className="flex items-center gap-2 text-sm text-gray-700 hover:text-gray-900 transition-colors"
-                >
-                  {photoURL ? (
-                    <img src={photoURL} alt="avatar" className="w-8 h-8 rounded-full object-cover border-2 border-orange-200" />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold border-2 border-orange-200">
-                      {initials}
-                    </div>
-                  )}
-                  <span className="max-w-[100px] truncate font-medium">
-                    {appUser?.displayName?.split(' ')[0] ?? 'Account'}
-                  </span>
-                  <ChevronDownIcon className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {/* Dropdown */}
-                {dropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
-                    <div className="px-4 py-2.5 border-b border-gray-100">
-                      <p className="text-sm font-semibold text-gray-900 truncate">{appUser?.displayName}</p>
-                      <p className="text-xs text-gray-400 truncate">{appUser?.email}</p>
-                    </div>
-                    <Link
-                      to="/profile"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                    >
-                      <UserCircleIcon className="w-4 h-4" />
-                      {t('profile')}
-                    </Link>
-                    {(appUser?.role === 'superAdmin' || appUser?.role === 'companyAdmin') && (
-                      <Link
-                        to="/admin"
-                        onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-                        {t('dashboard')}
-                      </Link>
-                    )}
-                    <div className="border-t border-gray-100 mt-1 pt-1">
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                        {t('signOut')}
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="hidden md:flex items-center gap-2">
-                <Link to="/signin" className="text-sm font-medium text-gray-700 hover:text-orange-500">{t('signIn')}</Link>
-                <Link
-                  to="/signup"
-                  className="text-sm font-medium bg-orange-500 text-white px-4 py-1.5 rounded-lg hover:bg-orange-600 transition-colors"
-                >
-                  {t('signUp')}
-                </Link>
-              </div>
-            )}
-
-            {/* Mobile toggle */}
+            {/* Hamburger */}
             <button
-              className="md:hidden p-2 text-gray-600"
               onClick={() => setMenuOpen(o => !o)}
-              aria-label="Toggle menu"
+              className="flex-shrink-0 p-2 rounded-lg hover:bg-white/20 transition-colors text-white"
+              aria-label="Menu"
             >
               {menuOpen ? <XMarkIcon className="w-6 h-6" /> : <Bars3Icon className="w-6 h-6" />}
             </button>
+
+            {/* Logo */}
+            <Link to="/" className="flex-shrink-0 text-white font-extrabold text-xl sm:text-2xl tracking-tight select-none">
+              AURA
+            </Link>
+
+            {/* Search */}
+            <form onSubmit={handleSearch} className="flex-1 mx-1 sm:mx-3">
+              <div className="flex items-center bg-white rounded-xl overflow-hidden h-10">
+                <input
+                  type="text"
+                  value={query}
+                  onChange={e => setQuery(e.target.value)}
+                  placeholder="Search on AURA Market..."
+                  className="flex-1 px-3 sm:px-4 text-sm text-gray-800 outline-none bg-transparent placeholder-gray-400 min-w-0"
+                />
+                <button
+                  type="submit"
+                  className="flex-shrink-0 px-3 sm:px-4 h-10 bg-orange-400 hover:bg-orange-500 transition-colors flex items-center justify-center"
+                  aria-label="Search"
+                >
+                  <MagnifyingGlassIcon className="w-5 h-5 text-white" />
+                </button>
+              </div>
+            </form>
+
+            {/* Account – desktop */}
+            {currentUser ? (
+              <Link
+                to="/profile"
+                className="hidden sm:flex flex-col items-center gap-0.5 text-white hover:text-orange-100 transition-colors flex-shrink-0"
+              >
+                {photoURL ? (
+                  <img src={photoURL} alt="avatar" className="w-7 h-7 rounded-full object-cover border-2 border-white/50" />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center text-xs font-bold">
+                    {initials}
+                  </div>
+                )}
+                <span className="text-[10px] font-medium leading-none">
+                  {appUser?.displayName?.split(' ')[0] ?? 'Account'}
+                </span>
+              </Link>
+            ) : (
+              <Link
+                to="/signin"
+                className="hidden sm:flex flex-col items-center gap-0.5 text-white hover:text-orange-100 transition-colors flex-shrink-0"
+              >
+                <UserIcon className="w-6 h-6" />
+                <span className="text-[10px] font-medium leading-none">Sign In</span>
+              </Link>
+            )}
+
+            {/* Cart */}
+            <Link
+              to="/cart"
+              className="relative flex flex-col items-center gap-0.5 text-white hover:text-orange-100 transition-colors flex-shrink-0"
+            >
+              <div className="relative">
+                <ShoppingCartIcon className="w-6 h-6" />
+                {itemCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-yellow-400 text-gray-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold leading-none">
+                    {itemCount > 9 ? '9+' : itemCount}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] font-medium leading-none hidden sm:block">Cart</span>
+            </Link>
+
           </div>
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Left side drawer + backdrop */}
       {menuOpen && (
-        <div className="md:hidden border-t bg-white px-4 pb-4 flex flex-col gap-3">
-          <NavLink to="/" end className={linkClass} onClick={() => setMenuOpen(false)}>{t('home')}</NavLink>
-          <NavLink to="/products" className={linkClass} onClick={() => setMenuOpen(false)}>{t('products')}</NavLink>
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40 bg-black/40"
+            onClick={() => setMenuOpen(false)}
+          />
 
-          {/* Language toggle – mobile */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500">{t('language')}:</span>
-            <div className="flex gap-1 border border-gray-200 rounded-lg overflow-hidden text-xs font-semibold">
+          {/* Drawer */}
+          <div className="fixed top-0 left-0 z-50 h-full w-[270px] sm:w-[300px] bg-white shadow-2xl flex flex-col overflow-y-auto">
+
+            {/* Drawer header */}
+            <div className="flex items-center justify-between px-4 h-14 bg-gradient-to-r from-orange-500 to-orange-600 flex-shrink-0">
+              <span className="text-white font-extrabold text-lg tracking-tight">AURA</span>
               <button
-                onClick={() => setLang('en')}
-                className={`px-3 py-1.5 transition-colors ${lang === 'en' ? 'bg-orange-500 text-white' : 'text-gray-500'}`}
-              >EN</button>
-              <button
-                onClick={() => setLang('fr')}
-                className={`px-3 py-1.5 transition-colors ${lang === 'fr' ? 'bg-orange-500 text-white' : 'text-gray-500'}`}
-              >FR</button>
+                onClick={() => setMenuOpen(false)}
+                className="p-1.5 rounded-lg hover:bg-white/20 transition-colors text-white"
+                aria-label="Close menu"
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Sale row */}
+            <Link
+              to="/products"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 bg-orange-600 text-white font-extrabold text-sm uppercase tracking-wide flex-shrink-0"
+            >
+              <span className="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center text-sm flex-shrink-0">%</span>
+              Sale
+            </Link>
+
+            {/* Category list */}
+            <div className="flex-1 divide-y divide-gray-100">
+              {[
+                { emoji: '🛍️', label: 'All Products', to: '/products' },
+                ...CATEGORIES.map(c => ({ emoji: c.emoji, label: c.label, to: `/products?category=${c.value}` })),
+              ].map(item => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-orange-50 transition-colors"
+                >
+                  <span className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-lg flex-shrink-0">
+                    {item.emoji}
+                  </span>
+                  <span className="text-sm font-medium text-gray-800">{item.label}</span>
+                </Link>
+              ))}
+            </div>
+
+            {/* Account section */}
+            <div className="border-t border-gray-200 bg-gray-50 px-4 py-4 flex flex-col gap-1 flex-shrink-0">
+              {currentUser ? (
+                <>
+                  <Link to="/profile" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-2.5 text-sm font-medium text-gray-800 hover:text-orange-500">
+                    <span className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-lg flex-shrink-0">👤</span>
+                    My Profile
+                  </Link>
+                  {(appUser?.role === 'superAdmin' || appUser?.role === 'companyAdmin') && (
+                    <Link to="/admin" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 py-2.5 text-sm font-medium text-gray-800 hover:text-orange-500">
+                      <span className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-lg flex-shrink-0">⚙️</span>
+                      Dashboard
+                    </Link>
+                  )}
+                  <button onClick={handleLogout} className="flex items-center gap-3 py-2.5 text-sm font-medium text-red-500 text-left">
+                    <span className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center text-lg flex-shrink-0">🚪</span>
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <Link to="/signin" onClick={() => setMenuOpen(false)} className="text-sm font-semibold text-orange-500 py-2 px-4 border border-orange-300 rounded-xl text-center hover:bg-orange-50 transition-colors">
+                    Sign In
+                  </Link>
+                  <Link to="/signup" onClick={() => setMenuOpen(false)} className="text-sm font-bold bg-orange-500 text-white py-2.5 px-4 rounded-xl text-center hover:bg-orange-600 transition-colors">
+                    Create Account
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
-
-          {currentUser ? (
-            <>
-              <Link to="/profile" className="text-sm font-medium text-gray-700" onClick={() => setMenuOpen(false)}>{t('profile')}</Link>
-              {(appUser?.role === 'superAdmin' || appUser?.role === 'companyAdmin') && (
-                <Link to="/admin" className="text-sm font-medium text-orange-500" onClick={() => setMenuOpen(false)}>{t('dashboard')}</Link>
-              )}
-              <button onClick={handleLogout} className="text-sm text-left text-red-500">{t('signOut')}</button>
-            </>
-          ) : (
-            <>
-              <Link to="/signin" className="text-sm font-medium text-gray-700" onClick={() => setMenuOpen(false)}>{t('signIn')}</Link>
-              <Link to="/signup" className="text-sm font-medium text-orange-500" onClick={() => setMenuOpen(false)}>{t('signUp')}</Link>
-            </>
-          )}
-        </div>
+        </>
       )}
     </header>
   );

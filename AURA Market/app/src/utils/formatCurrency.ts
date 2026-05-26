@@ -1,5 +1,6 @@
 export function formatCurrency(amount: number, currency = 'RWF'): string {
-  return new Intl.NumberFormat('rw-RW', { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
+  const number = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(amount);
+  return `${currency} ${number}`;
 }
 
 export const fmt = formatCurrency;

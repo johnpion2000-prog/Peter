@@ -30,9 +30,18 @@ service cloud.firestore {
                 && get(/databases/$(database)/documents/companies/$(userDoc().companyId)).data.status == 'active'
                 && get(/databases/$(database)/documents/companies/$(userDoc().companyId)).data.permissions.canAddProducts == true));
       allow update: if isSuperAdmin()
-        || (role() == 'companyAdmin' && resource.data.companyId == userDoc().companyId);
+        || (role() == 'companyAdmin' && resource.data.companyId == userDoc().companyId)
+        // Allow ratingAvg/ratingCount updates via transaction (handled by ratingService)
+        || (isSignedIn()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ratingAvg','ratingCount']));
       allow delete: if isSuperAdmin()
         || (role() == 'companyAdmin' && resource.data.companyId == userDoc().companyId);
+
+      // Ratings subcollection — signed-in users can read all, write only their own
+      match /ratings/{userId} {
+        allow read:   if true;
+        allow write:  if isSignedIn() && request.auth.uid == userId;
+      }
     }
 
     // ── Orders ─────────────────────────────────────────────────

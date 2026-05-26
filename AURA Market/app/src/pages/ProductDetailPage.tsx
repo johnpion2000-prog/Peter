@@ -1,22 +1,57 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getProduct } from '../services/productService';
+import { submitRating, getUserRating } from '../services/ratingService';
 import type { Product } from '../types/product.types';
 import { formatCurrency } from '../utils/formatCurrency';
 import { useCartStore } from '../stores/cartStore';
+import { useAuthContext } from '../context/AuthContext';
 import Badge from '../components/ui/Badge';
 import Spinner from '../components/ui/Spinner';
 import Button from '../components/ui/Button';
-import { ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { ShoppingCartIcon, StarIcon as StarOutline } from '@heroicons/react/24/outline';
+import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 import toast from 'react-hot-toast';
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { currentUser } = useAuthContext();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [qty, setQty] = useState(1);
+  const [hovered, setHovered] = useState(0);
+  const [userRating, setUserRating] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const addItem = useCartStore(s => s.addItem);
+
+  useEffect(() => {
+    if (!id) return;
+    getProduct(id).then(p => { setProduct(p); setLoading(false); });
+  }, [id]);
+
+  useEffect(() => {
+    if (!id || !currentUser) return;
+    getUserRating(id, currentUser.uid).then(setUserRating);
+  }, [id, currentUser]);
+
+  async function handleRate(stars: number) {
+    if (!currentUser) { toast.error('Sign in to rate this product'); return; }
+    if (!id) return;
+    setSubmitting(true);
+    try {
+      await submitRating(id, currentUser.uid, stars);
+      setUserRating(stars);
+      // Refresh product to get new avg
+      const updated = await getProduct(id);
+      setProduct(updated);
+      toast.success('Rating saved!');
+    } catch {
+      toast.error('Failed to save rating');
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   useEffect(() => {
     if (!id) return;
@@ -73,6 +108,25 @@ export default function ProductDetailPage() {
             )}
           </div>
 
+          {/* Rating display */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-0.5">
+              {[1,2,3,4,5].map(s => (
+                <StarSolid
+                  key={s}
+                  className={`w-5 h-5 ${s <= Math.round(product.ratingAvg ?? 0) ? 'text-yellow-400' : 'text-gray-200'}`}
+                />
+              ))}
+            </div>
+            {product.ratingCount ? (
+              <span className="text-sm text-gray-500">
+                {product.ratingAvg?.toFixed(1)} · {product.ratingCount} review{product.ratingCount !== 1 ? 's' : ''}
+              </span>
+            ) : (
+              <span className="text-sm text-gray-400">No reviews yet</span>
+            )}
+          </div>
+
           <p className="text-gray-600 leading-relaxed">{product.description}</p>
 
           {/* Stock */}
@@ -116,6 +170,40 @@ export default function ProductDetailPage() {
             >
               Buy Now
             </Button>
+          </div>
+
+          {/* ── Rate this product ── */}
+          <div className="border-t border-gray-100 pt-5 mt-2">
+            <p className="text-sm font-semibold text-gray-700 mb-2">
+              {userRating ? 'Your rating' : 'Rate this product'}
+            </p>
+            <div className="flex items-center gap-1">
+              {[1,2,3,4,5].map(s => {
+                const filled = s <= (hovered || userRating || 0);
+                return (
+                  <button
+                    key={s}
+                    disabled={submitting}
+                    onMouseEnter={() => setHovered(s)}
+                    onMouseLeave={() => setHovered(0)}
+                    onClick={() => handleRate(s)}
+                    className="p-0.5 transition-transform hover:scale-110 disabled:opacity-50"
+                    aria-label={`Rate ${s} star${s > 1 ? 's' : ''}`}
+                  >
+                    {filled
+                      ? <StarSolid className="w-8 h-8 text-yellow-400" />
+                      : <StarOutline className="w-8 h-8 text-gray-300" />
+                    }
+                  </button>
+                );
+              })}
+              {userRating && (
+                <span className="ml-2 text-sm text-gray-500">You rated {userRating}/5</span>
+              )}
+            </div>
+            {!currentUser && (
+              <p className="text-xs text-gray-400 mt-1">Sign in to leave a rating</p>
+            )}
           </div>
         </div>
       </div>

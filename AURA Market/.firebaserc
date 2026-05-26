@@ -9,6 +9,14 @@
           "auramarket"
         ]
       }
+    },
+    "aura-payment": {
+      "hosting": {
+        "aura": [
+          "auramarket"
+        ]
+      }
     }
-  }
+  },
+  "etags": {}
 }

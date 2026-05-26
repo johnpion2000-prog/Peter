@@ -13,6 +13,8 @@ export interface Product {
   description: string;
   stock: number;
   companyId?: string;
+  ratingAvg?: number;
+  ratingCount?: number;
   createdAt: Timestamp;
 }
 
