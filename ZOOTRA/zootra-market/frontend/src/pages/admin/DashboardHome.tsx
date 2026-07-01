@@ -1,20 +1,29 @@
-import React from 'react';
-import { Package, ShoppingBag, DollarSign, type LucideIcon } from 'lucide-react';
+import React, { useState } from 'react';
+import { Package, ShoppingBag, DollarSign, CheckCircle2, XCircle } from 'lucide-react';
 import { useAdmin } from '../../hooks/useAdmin';
+import { updateOrderStatus } from '../../services/orderService';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { useUIStore } from '../../stores/uiStore';
 import Spinner from '../../components/ui/Spinner';
-import SeedDataPanel from '../../components/admin/SeedDataPanel';
 
 const DashboardHome: React.FC = () => {
-  const { stats, orders, products, loading } = useAdmin();
+  const { stats, orders, products, loading, refetch } = useAdmin();
+  const showToast = useUIStore((s) => s.showToast);
+  const [busy, setBusy] = useState<string | null>(null);
   const lowStock = products.filter((p) => p.stock <= 2 && p.stock > 0);
   const recent = orders.slice(0, 5);
 
-  // Admin order actions
-  const handleOrderStatus = async (orderId: string, status: string) => {
-    // You may want to use an orderService here for real update
-    // For now, just show a toast or log (implement actual update in your service)
-    alert(`Set order ${orderId} to ${status}`);
+  const handleOrderStatus = async (orderId: string, status: 'delivered' | 'cancelled') => {
+    setBusy(orderId + status);
+    try {
+      await updateOrderStatus(orderId, status);
+      showToast(`Order marked as ${status}`, 'success');
+      await refetch();
+    } catch (err: any) {
+      showToast(err.message ?? 'Failed to update order', 'error');
+    } finally {
+      setBusy(null);
+    }
   };
 
   if (loading) return <div className="flex justify-center py-16"><Spinner size="lg" /></div>;
@@ -76,18 +85,28 @@ const DashboardHome: React.FC = () => {
                       <td className="py-2 font-medium">{formatCurrency(o.total)}</td>
                       <td className="py-2"><span className="bg-gray-100 px-2 py-0.5 rounded text-xs capitalize">{o.status}</span></td>
                       <td className="py-2">
-                        {o.status !== 'cancelled' && (
-                          <button
-                            className="text-xs text-red-600 hover:underline mr-2"
-                            onClick={() => handleOrderStatus(o.id, 'cancelled')}
-                          >Cancel</button>
-                        )}
-                        {o.status !== 'delivered' && (
-                          <button
-                            className="text-xs text-green-600 hover:underline"
-                            onClick={() => handleOrderStatus(o.id, 'delivered')}
-                          >Complete</button>
-                        )}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {o.status !== 'delivered' && o.status !== 'cancelled' && (
+                            <button
+                              disabled={!!busy}
+                              onClick={() => handleOrderStatus(o.id, 'delivered')}
+                              className="inline-flex items-center gap-1 text-xs text-white bg-green-500 hover:bg-green-600 disabled:opacity-50 px-2.5 py-1 rounded-lg font-semibold transition"
+                            >
+                              {busy === o.id + 'delivered' ? <Spinner size="sm" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                              Complete
+                            </button>
+                          )}
+                          {o.status !== 'cancelled' && o.status !== 'delivered' && (
+                            <button
+                              disabled={!!busy}
+                              onClick={() => handleOrderStatus(o.id, 'cancelled')}
+                              className="inline-flex items-center gap-1 text-xs text-white bg-red-500 hover:bg-red-600 disabled:opacity-50 px-2.5 py-1 rounded-lg font-semibold transition"
+                            >
+                              {busy === o.id + 'cancelled' ? <Spinner size="sm" /> : <XCircle className="w-3.5 h-3.5" />}
+                              Cancel
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Leaf, Menu, X, LayoutDashboard, Package, CalendarCheck, LogOut, User, ChevronRight } from 'lucide-react';
+import { ShoppingCart, Leaf, Menu, X, LayoutDashboard, Package, CalendarCheck, LogOut, User, ChevronRight, Mail } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCartStore } from '../../stores/cartStore';
 
@@ -28,6 +28,9 @@ const Navbar: React.FC = () => {
           <div className="hidden sm:flex items-center gap-4">
             <NavLink to="/products" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-green-600' : 'text-gray-600 hover:text-green-600'}`}>
               Browse
+            </NavLink>
+            <NavLink to="/contact" className={({ isActive }) => `text-sm font-medium ${isActive ? 'text-green-600' : 'text-gray-600 hover:text-green-600'}`}>
+              Contact
             </NavLink>
             <Link to="/cart" className="relative text-gray-600 hover:text-green-600">
               <ShoppingCart className="w-5 h-5" />
@@ -103,6 +106,18 @@ const Navbar: React.FC = () => {
                 }
               >
                 <span className="flex items-center gap-3"><Package className="w-4 h-4 text-green-500" /> Browse Animals</span>
+                <ChevronRight className="w-4 h-4 text-gray-300" />
+              </NavLink>
+
+              {/* Contact */}
+              <NavLink
+                to="/contact"
+                onClick={close}
+                className={({ isActive }) =>
+                  `flex items-center justify-between px-5 py-3.5 text-sm font-medium transition ${isActive ? 'text-green-600 bg-green-50' : 'text-gray-700 hover:bg-gray-50'}`
+                }
+              >
+                <span className="flex items-center gap-3"><Mail className="w-4 h-4 text-green-500" /> Contact Us</span>
                 <ChevronRight className="w-4 h-4 text-gray-300" />
               </NavLink>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getFirebaseErrorMessage } from '../utils/firebaseErrors';
 import Button from '../components/ui/Button';
@@ -11,6 +11,8 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { login, user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: { pathname: string; search: string } })?.from;
 
   // Redirect once onAuthStateChanged sets the user (happens after login)
   useEffect(() => {
@@ -20,10 +22,10 @@ const Login: React.FC = () => {
       } else if (user.role === 'provider') {
         navigate('/provider/dashboard', { replace: true });
       } else {
-        navigate('/', { replace: true });
+        navigate(from ? `${from.pathname}${from.search}` : '/', { replace: true });
       }
     }
-  }, [user, navigate]);
+  }, [user, navigate, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Spinner from '../components/ui/Spinner';
 
@@ -10,6 +10,7 @@ interface RouteGuardProps {
 
 const RouteGuard: React.FC<RouteGuardProps> = ({ children, requireAdmin = false }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -19,7 +20,7 @@ const RouteGuard: React.FC<RouteGuardProps> = ({ children, requireAdmin = false 
     );
   }
 
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/login" state={{ from: location }} replace />;
   if (requireAdmin && user.role !== 'admin') return <Navigate to="/" replace />;
 
   return <>{children}</>;

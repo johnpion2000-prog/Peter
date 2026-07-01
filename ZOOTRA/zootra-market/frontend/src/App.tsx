@@ -19,6 +19,7 @@ import ShoppingCartPage from './pages/ShoppingCartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrdersPage from './pages/OrdersPage';
 import BookingPage from './pages/BookingPage';
+import ContactPage from './pages/ContactPage';
 
 // Admin pages
 import AdminLayout from './pages/admin/AdminLayout';
@@ -59,6 +60,7 @@ const App: React.FC = () => {
           <Route path="/checkout" element={<RouteGuard><PublicLayout><CheckoutPage /></PublicLayout></RouteGuard>} />
           <Route path="/orders" element={<RouteGuard><PublicLayout><OrdersPage /></PublicLayout></RouteGuard>} />
           <Route path="/bookings" element={<RouteGuard><PublicLayout><BookingPage /></PublicLayout></RouteGuard>} />
+          <Route path="/contact" element={<PublicLayout><ContactPage /></PublicLayout>} />
 
           {/* Admin routes */}
           <Route path="/admin" element={<RouteGuard requireAdmin><AdminLayout /></RouteGuard>}>

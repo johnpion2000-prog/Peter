@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CheckCircle2, XCircle } from 'lucide-react';
 import { useOrders } from '../../hooks/useOrders';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { OrderStatus } from '../../types/order.types';
@@ -19,6 +20,17 @@ const OrderManagement: React.FC = () => {
   const showToast = useUIStore((s) => s.showToast);
   const [selected, setSelected] = useState<string | null>(null);
   const [newStatus, setNewStatus] = useState<OrderStatus>('pending');
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const act = async (id: string, status: OrderStatus) => {
+    setBusy(id + status);
+    try {
+      await changeOrderStatus(id, status);
+      showToast(`Order marked as ${status}`, 'success');
+    } catch (err: any) {
+      showToast(err.message ?? 'Failed to update order', 'error');
+    } finally { setBusy(null); }
+  };
 
   const handleUpdate = async () => {
     if (!selected) return;
@@ -34,21 +46,62 @@ const OrderManagement: React.FC = () => {
           <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-xs text-gray-500 font-medium">
-              <tr><th className="px-4 py-3 text-left">ID</th><th className="px-4 py-3 text-left">Address</th><th className="px-4 py-3 text-left">Items</th><th className="px-4 py-3 text-left">Total</th><th className="px-4 py-3 text-left">Status</th><th className="px-4 py-3 text-right">Action</th></tr>
+              <tr>
+                <th className="px-4 py-3 text-left">ID</th>
+                <th className="px-4 py-3 text-left">Customer</th>
+                <th className="px-4 py-3 text-left">Items</th>
+                <th className="px-4 py-3 text-left">Total</th>
+                <th className="px-4 py-3 text-left">Status</th>
+                <th className="px-4 py-3 text-right">Actions</th>
+              </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {orders.map((o) => (
-                <tr key={o.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono text-xs text-gray-500">#{o.id.slice(0, 8)}</td>
-                  <td className="px-4 py-3 text-gray-600 max-w-[120px] truncate">{o.shippingAddress}</td>
-                  <td className="px-4 py-3 text-gray-500">{o.items.length} item(s)</td>
-                  <td className="px-4 py-3 font-medium">{formatCurrency(o.total)}</td>
-                  <td className="px-4 py-3"><span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[o.status]}`}>{o.status}</span></td>
-                  <td className="px-4 py-3 text-right">
-                    <button onClick={() => { setSelected(o.id); setNewStatus(o.status); }} className="text-blue-500 hover:underline text-xs">Update</button>
-                  </td>
-                </tr>
-              ))}
+              {orders.map((o) => {
+                const isBusy = busy?.startsWith(o.id);
+                return (
+                  <tr key={o.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 font-mono text-xs text-gray-500">#{o.id.slice(0, 8)}</td>
+                    <td className="px-4 py-3 text-gray-600 max-w-[140px] truncate">{o.shippingAddress}</td>
+                    <td className="px-4 py-3 text-gray-500">{o.items.length} item(s)</td>
+                    <td className="px-4 py-3 font-medium">{formatCurrency(o.total)}</td>
+                    <td className="px-4 py-3">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusColors[o.status]}`}>
+                        {o.status.charAt(0).toUpperCase() + o.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5 justify-end flex-wrap">
+                        {o.status !== 'delivered' && o.status !== 'cancelled' && (
+                          <button
+                            disabled={!!isBusy}
+                            onClick={() => act(o.id, 'delivered')}
+                            className="inline-flex items-center gap-1 text-xs text-white bg-green-500 hover:bg-green-600 disabled:opacity-50 px-2.5 py-1 rounded-lg font-semibold transition"
+                          >
+                            {isBusy && busy === o.id + 'delivered' ? <Spinner size="sm" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                            Complete
+                          </button>
+                        )}
+                        {o.status !== 'cancelled' && o.status !== 'delivered' && (
+                          <button
+                            disabled={!!isBusy}
+                            onClick={() => act(o.id, 'cancelled')}
+                            className="inline-flex items-center gap-1 text-xs text-white bg-red-500 hover:bg-red-600 disabled:opacity-50 px-2.5 py-1 rounded-lg font-semibold transition"
+                          >
+                            {isBusy && busy === o.id + 'cancelled' ? <Spinner size="sm" /> : <XCircle className="w-3.5 h-3.5" />}
+                            Cancel
+                          </button>
+                        )}
+                        <button
+                          onClick={() => { setSelected(o.id); setNewStatus(o.status); }}
+                          className="text-xs text-gray-400 hover:text-blue-500 hover:underline px-1 py-1 transition"
+                        >
+                          More
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
           </div>
@@ -57,7 +110,7 @@ const OrderManagement: React.FC = () => {
       <Modal isOpen={!!selected} onClose={() => setSelected(null)} title="Update Order Status">
         <select value={newStatus} onChange={(e) => setNewStatus(e.target.value as OrderStatus)}
           className="w-full border rounded-lg px-3 py-2 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-green-500">
-          {statuses.map((s) => <option key={s} value={s}>{s}</option>)}
+          {statuses.map((s) => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
         </select>
         <div className="flex gap-2 justify-end">
           <Button variant="secondary" onClick={() => setSelected(null)}>Cancel</Button>

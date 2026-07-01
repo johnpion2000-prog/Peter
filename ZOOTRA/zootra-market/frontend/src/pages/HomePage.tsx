@@ -4,7 +4,7 @@ import {
   Stethoscope, Scissors, GraduationCap, ClipboardList, Truck,
   CheckCircle2, Search, MessageCircle, ShoppingCart,
   MapPin, Mail, Phone, Package, Leaf, Wrench, ChevronRight,
-  Layers, PawPrint, Pill, type LucideIcon,
+  Layers, PawPrint, Pill, CalendarCheck, type LucideIcon,
 } from 'lucide-react';
 import { useProducts } from '../hooks/useProducts';
 import { formatCurrency } from '../utils/formatCurrency';
@@ -17,11 +17,11 @@ import Spinner from '../components/ui/Spinner';
 interface ServiceItem { icon: LucideIcon; title: string; description: string; action: string; href: string }
 
 const services: ServiceItem[] = [
-  { icon: Stethoscope, title: 'Veterinary Services', description: 'Connect with certified vets for check-ups, vaccinations, and emergency care for your animals.', action: 'Book Now', href: '/booking?service=vet' },
-  { icon: Scissors, title: 'Pet Grooming', description: 'Professional grooming services to keep your pets clean, healthy, and looking their best.', action: 'Book Now', href: '/booking?service=groomer' },
-  { icon: GraduationCap, title: 'Animal Training', description: 'Expert trainers for livestock obedience, working animals, and domestic pet behaviour.', action: 'Book Now', href: '/booking?service=trainer' },
-  { icon: ClipboardList, title: 'Farm Consultation', description: 'Get expert advice on farm management, breed selection, and productivity improvement.', action: 'Contact', href: '/services?type=consultant' },
-  { icon: Truck, title: 'Animal Transport', description: 'Safe, stress-free transport of livestock and pets across Kigali and all Rwanda provinces.', action: 'Contact', href: '/services?type=transport' },
+  { icon: Stethoscope, title: 'Veterinary Services', description: 'Connect with certified vets for check-ups, vaccinations, and emergency care for your animals.', action: 'Book Now', href: '/bookings?service=vet' },
+  { icon: Scissors, title: 'Pet Grooming', description: 'Professional grooming services to keep your pets clean, healthy, and looking their best.', action: 'Book Now', href: '/bookings?service=groomer' },
+  { icon: GraduationCap, title: 'Animal Training', description: 'Expert trainers for livestock obedience, working animals, and domestic pet behaviour.', action: 'Book Now', href: '/bookings?service=trainer' },
+  { icon: ClipboardList, title: 'Farm Consultation', description: 'Get expert advice on farm management, breed selection, and productivity improvement.', action: 'Contact', href: '/bookings?service=consultant' },
+  { icon: Truck, title: 'Animal Transport', description: 'Safe, stress-free transport of livestock and pets across Kigali and all Rwanda provinces.', action: 'Contact', href: '/bookings?service=transport' },
 ];
 
 const whyUsItems = [
@@ -235,7 +235,11 @@ const HomePage: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((svc) => (
-              <div key={svc.title} className="group bg-gray-50 hover:bg-green-50 border border-gray-100 hover:border-green-200 rounded-2xl p-6 flex flex-col gap-4 transition">
+              <Link
+                key={svc.title}
+                to={svc.href}
+                className="group bg-gray-50 hover:bg-green-50 border border-gray-100 hover:border-green-200 rounded-2xl p-6 flex flex-col gap-4 transition cursor-pointer"
+              >
                 <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center">
                   <svc.icon className="w-6 h-6 text-green-600" />
                 </div>
@@ -243,13 +247,10 @@ const HomePage: React.FC = () => {
                   <h3 className="text-base font-bold text-gray-800 mb-1">{svc.title}</h3>
                   <p className="text-sm text-gray-500 leading-relaxed">{svc.description}</p>
                 </div>
-                <Link
-                  to={svc.href}
-                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-700 hover:text-green-800 transition"
-                >
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-700 group-hover:text-green-800 transition">
                   {svc.action} <ChevronRight className="w-4 h-4" />
-                </Link>
-              </div>
+                </span>
+              </Link>
             ))}
           </div>
         </div>
@@ -309,16 +310,16 @@ const HomePage: React.FC = () => {
           <p className="text-gray-400 mb-10 text-sm">Join thousands of Rwandan farmers, buyers, and service providers already on ZOOTRA.</p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
-              to="/register"
+              to="/bookings"
               className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white font-semibold px-8 py-3.5 rounded-xl transition text-sm shadow-lg"
             >
-              <Package className="w-4 h-4" /> List a Product
+              <CalendarCheck className="w-4 h-4" /> Book a Service
             </Link>
             <Link
-              to="/register"
+              to="/products"
               className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-900 font-semibold px-8 py-3.5 rounded-xl transition text-sm shadow-lg"
             >
-              <Wrench className="w-4 h-4" /> Join as Service Provider
+              <Package className="w-4 h-4" /> Browse Products
             </Link>
           </div>
         </div>
@@ -348,6 +349,7 @@ const HomePage: React.FC = () => {
                 <li><Link to="/services" className="hover:text-green-400 transition">View Services</Link></li>
                 <li><Link to="/register" className="hover:text-green-400 transition">Create Account</Link></li>
                 <li><Link to="/login" className="hover:text-green-400 transition">Sign In</Link></li>
+                <li><Link to="/contact" className="hover:text-green-400 transition">Contact Us</Link></li>
               </ul>
             </div>
 
@@ -373,7 +375,7 @@ const HomePage: React.FC = () => {
                 </li>
                 <li className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                  <a href="mailto:hello@zootra.rw" className="hover:text-green-400 transition">hello@zootra.rw</a>
+                  <a href="mailto:info@zootra.rw" className="hover:text-green-400 transition">info@zootra.rw</a>
                 </li>
                 <li className="flex items-center gap-2">
                   <Phone className="w-4 h-4 text-gray-500 flex-shrink-0" />
