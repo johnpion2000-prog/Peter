@@ -1,0 +1,25 @@
+{
+  "name": "zootra-functions",
+  "version": "1.0.0",
+  "description": "Firebase Cloud Functions for ZOOTRA Market — email & notification triggers",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "firebase-admin": "^11.11.1",
+    "firebase-functions": "^7.2.5",
+    "nodemailer": "^6.9.14"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^6.4.14",
+    "typescript": "^5.4.0"
+  }
+}

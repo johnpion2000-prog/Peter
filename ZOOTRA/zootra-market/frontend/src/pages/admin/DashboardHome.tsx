@@ -11,7 +11,9 @@ const DashboardHome: React.FC = () => {
   const showToast = useUIStore((s) => s.showToast);
   const [busy, setBusy] = useState<string | null>(null);
   const lowStock = products.filter((p) => p.stock <= 2 && p.stock > 0);
-  const recent = orders.slice(0, 5);
+  // Only show active (not yet completed or cancelled) orders in Recent Orders
+  const activeOrders = orders.filter((o) => o.status !== 'delivered' && o.status !== 'cancelled');
+  const recent = activeOrders.slice(0, 5);
 
   const handleOrderStatus = async (orderId: string, status: 'delivered' | 'cancelled') => {
     setBusy(orderId + status);
@@ -46,8 +48,15 @@ const DashboardHome: React.FC = () => {
       </div>
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl border border-gray-100 p-5">
-          <h2 className="font-semibold text-gray-900 mb-4">Recent Orders</h2>
-          {recent.length === 0 ? <p className="text-gray-400 text-sm">No orders yet.</p> : (
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-gray-900">Active Orders</h2>
+            {activeOrders.length > 0 && (
+              <span className="text-xs bg-yellow-100 text-yellow-700 font-semibold px-2 py-0.5 rounded-full">
+                {activeOrders.length} pending
+              </span>
+            )}
+          </div>
+          {recent.length === 0 ? <p className="text-gray-400 text-sm">No active orders — all caught up! ✅</p> : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>

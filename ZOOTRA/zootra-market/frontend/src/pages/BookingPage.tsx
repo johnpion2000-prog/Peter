@@ -208,6 +208,7 @@ const BookingPage: React.FC = () => {
 
   const { bookings, loading, refetch } = useUserBookings(user?.uid);
   const [tab, setTab] = useState<'book' | 'history'>(validService ? 'book' : 'book');
+  const [historyTab, setHistoryTab] = useState<'active' | 'past'>('active');
 
   React.useEffect(() => {
     if (validService) setTab('book');
@@ -241,6 +242,7 @@ const BookingPage: React.FC = () => {
       showToast('Appointment booked! We will confirm shortly.', 'success');
       reset();
       refetch();
+      setHistoryTab('active');
       setTab('history');
     } catch (err: any) {
       showToast(err.message ?? 'Failed to create booking', 'error');
@@ -366,26 +368,59 @@ const BookingPage: React.FC = () => {
         )}
 
         {/* ── BOOKING HISTORY ── */}
-        {tab === 'history' && (
-          <div className="space-y-3">
-            {loading ? (
-              <div className="flex justify-center py-16"><Spinner size="lg" /></div>
-            ) : bookings.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-200">
-                <CalendarCheck className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="font-semibold text-gray-500">No bookings yet</p>
-                <p className="text-sm text-gray-400 mt-1">Your appointment history will appear here.</p>
-                <button onClick={() => setTab('book')} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-green-600 hover:text-green-700">
-                  Book now <ChevronRight className="w-4 h-4" />
+        {tab === 'history' && (() => {
+          const activeBookings = bookings.filter((b) => b.status === 'pending' || b.status === 'confirmed');
+          const pastBookings   = bookings.filter((b) => b.status === 'completed' || b.status === 'cancelled');
+
+          return (
+            <div>
+              {/* Sub-tabs: Active / Past */}
+              <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit mb-6">
+                <button
+                  onClick={() => setHistoryTab('active')}
+                  className={`px-5 py-2 rounded-lg text-sm font-semibold transition ${historyTab === 'active' ? 'bg-white text-green-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                  Active{activeBookings.length > 0 && <span className="ml-1.5 bg-green-100 text-green-700 text-xs font-bold px-1.5 py-0.5 rounded-full">{activeBookings.length}</span>}
+                </button>
+                <button
+                  onClick={() => setHistoryTab('past')}
+                  className={`px-5 py-2 rounded-lg text-sm font-semibold transition ${historyTab === 'past' ? 'bg-white text-green-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                  Past{pastBookings.length > 0 && <span className="ml-1.5 bg-gray-200 text-gray-600 text-xs font-bold px-1.5 py-0.5 rounded-full">{pastBookings.length}</span>}
                 </button>
               </div>
-            ) : (
-              bookings.map((b) => (
-                <BookingCard key={b.id} booking={b} user={user} />
-              ))
-            )}
-          </div>
-        )}
+
+              <div className="space-y-3">
+                {loading ? (
+                  <div className="flex justify-center py-16"><Spinner size="lg" /></div>
+                ) : historyTab === 'active' ? (
+                  activeBookings.length === 0 ? (
+                    <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-200">
+                      <CalendarCheck className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                      <p className="font-semibold text-gray-500">No active bookings</p>
+                      <p className="text-sm text-gray-400 mt-1">Pending and confirmed appointments appear here.</p>
+                      <button onClick={() => setTab('book')} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-green-600 hover:text-green-700">
+                        Book now <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    activeBookings.map((b) => <BookingCard key={b.id} booking={b} user={user} />)
+                  )
+                ) : (
+                  pastBookings.length === 0 ? (
+                    <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-200">
+                      <CalendarCheck className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                      <p className="font-semibold text-gray-500">No past bookings yet</p>
+                      <p className="text-sm text-gray-400 mt-1">Completed and cancelled appointments will appear here.</p>
+                    </div>
+                  ) : (
+                    pastBookings.map((b) => <BookingCard key={b.id} booking={b} user={user} />)
+                  )
+                )}
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
